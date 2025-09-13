@@ -1,0 +1,157 @@
+# iOS/macOS Template Matchfile
+# This file contains configuration for Fastlane Match (code signing)
+# More information: https://docs.fastlane.tools/actions/match/
+
+# =============================================================================
+# GIT REPOSITORY CONFIGURATION
+# =============================================================================
+
+# Git URL for storing certificates and provisioning profiles
+# TODO: Replace with your actual certificates repository URL
+git_url(ENV["MATCH_GIT_URL"] || "https://github.com/your-org/certificates-repo.git")
+
+# Git branch to use (default is "master")
+git_branch("main")
+
+# =============================================================================
+# STORAGE CONFIGURATION
+# =============================================================================
+
+# Storage mode - can be "git", "google_cloud", "s3"
+storage_mode("git")
+
+# Type of code signing identity to create/manage
+# Options: "appstore", "adhoc", "development", "enterprise"
+type("development") # This can be overridden in Fastfile
+
+# =============================================================================
+# APP CONFIGURATION
+# =============================================================================
+
+# App bundle identifiers to manage certificates for
+# TODO: Replace with your actual bundle identifiers
+app_identifier([
+  ENV["IOS_BUNDLE_ID"] || "com.yourcompany.yourapp",
+  ENV["MACOS_BUNDLE_ID"] || "com.yourcompany.yourapp.macos"
+])
+
+# Team ID for code signing
+# TODO: Replace with your actual Apple Developer Team ID
+team_id(ENV["DEVELOPMENT_TEAM"] || "YOUR_DEVELOPMENT_TEAM_ID")
+
+# =============================================================================
+# KEYCHAIN CONFIGURATION
+# =============================================================================
+
+# Keychain name to store certificates and keys
+keychain_name(ENV["MATCH_KEYCHAIN_NAME"] || "fastlane_tmp_keychain")
+
+# Keychain password
+keychain_password(ENV["MATCH_KEYCHAIN_PASSWORD"] || "")
+
+# =============================================================================
+# AUTHENTICATION
+# =============================================================================
+
+# Git basic authorization token (for private repositories)
+git_basic_authorization(ENV["MATCH_GIT_BASIC_AUTHORIZATION"])
+
+# Username for git (if using HTTPS with username/password)
+# git_user_email(ENV["GIT_USER_EMAIL"])
+
+# =============================================================================
+# CERTIFICATE SETTINGS
+# =============================================================================
+
+# Username (Apple ID) for generating certificates
+username(ENV["APPLE_ID"] || "your-apple-id@example.com")
+
+# Platform to manage certificates for
+# Options: "ios", "macos", "tvos"
+platform("ios") # This can be overridden in Fastfile
+
+# =============================================================================
+# ADVANCED CONFIGURATION
+# =============================================================================
+
+# Skip confirmation prompts
+skip_confirmation(true)
+
+# Skip certificate verification
+skip_certificate_verification(false)
+
+# Shallow clone the git repository (faster, but less history)
+shallow_clone(true)
+
+# Clone the full git repository branch only
+clone_branch_directly(true)
+
+# Generate readonly certificates (for CI environments)
+readonly(false) # This can be overridden in Fastfile
+
+# Force certificate renewal even if not expired
+force(false)
+
+# Force for new devices (renew provisioning profiles)
+force_for_new_devices(true)
+
+# =============================================================================
+# TEMPLATE VARIABLES
+# =============================================================================
+
+# Template specific variables that need to be replaced:
+#
+# Environment Variables to set in .env:
+# MATCH_GIT_URL=https://github.com/your-org/certificates-repo.git
+# MATCH_GIT_BASIC_AUTHORIZATION=base64_encoded_username_password
+# MATCH_PASSWORD=your_certificates_repository_encryption_password
+# MATCH_KEYCHAIN_NAME=fastlane_tmp_keychain
+# MATCH_KEYCHAIN_PASSWORD=your_keychain_password
+# APPLE_ID=your-apple-id@example.com
+# DEVELOPMENT_TEAM=YOUR_DEVELOPMENT_TEAM_ID
+# IOS_BUNDLE_ID=com.yourcompany.yourapp
+# MACOS_BUNDLE_ID=com.yourcompany.yourapp.macos
+
+# =============================================================================
+# SETUP INSTRUCTIONS
+# =============================================================================
+
+# To set up Fastlane Match:
+#
+# 1. Create a new private Git repository for storing certificates
+# 2. Set the MATCH_GIT_URL environment variable
+# 3. Set a strong password for MATCH_PASSWORD environment variable
+# 4. Run: fastlane match init
+# 5. Run: fastlane match development
+# 6. Run: fastlane match appstore
+#
+# For team sharing:
+# 1. Share the MATCH_PASSWORD with your team members securely
+# 2. Grant team members access to the certificates repository
+# 3. Team members can run: fastlane match development --readonly
+#
+# For CI/CD:
+# 1. Set all required environment variables as secrets
+# 2. Use readonly mode: fastlane match development --readonly
+# 3. Set up keychain in CI with MATCH_KEYCHAIN_PASSWORD
+
+# =============================================================================
+# CERTIFICATE TYPES
+# =============================================================================
+
+# Development certificates:
+# - Used for development and debugging
+# - Can install on registered devices
+# - Created with: fastlane match development
+#
+# App Store certificates:
+# - Used for App Store distribution
+# - Created with: fastlane match appstore
+#
+# Ad Hoc certificates:
+# - Used for distributing to specific devices outside App Store
+# - Created with: fastlane match adhoc
+#
+# Enterprise certificates:
+# - Used for enterprise distribution
+# - Created with: fastlane match enterprise

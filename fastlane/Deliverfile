@@ -1,0 +1,209 @@
+# iOS/macOS Template Deliverfile
+# This file contains configuration for App Store deployment
+# More information: https://docs.fastlane.tools/actions/deliver/
+
+# =============================================================================
+# APP STORE CONNECT CONFIGURATION
+# =============================================================================
+
+# Bundle identifier (will be automatically detected from Appfile)
+# app_identifier([[APP_IDENTIFIER]])
+
+# Apple ID (numeric ID from App Store Connect)
+# TODO: Replace with your actual Apple ID from App Store Connect
+# apple_id("1234567890")
+
+# =============================================================================
+# SUBMISSION SETTINGS
+# =============================================================================
+
+# Skip HTML report generation
+skip_html_report(true)
+
+# Skip uploading metadata
+skip_metadata(false)
+
+# Skip uploading screenshots
+skip_screenshots(false)
+
+# Skip uploading the binary
+skip_binary_upload(false)
+
+# Skip app version update
+skip_app_version_update(false)
+
+# Force overwrite of existing metadata
+force(true)
+
+# =============================================================================
+# REVIEW SUBMISSION SETTINGS
+# =============================================================================
+
+# Automatically submit for review after upload
+submit_for_review(false)
+
+# Automatically release after approval
+automatic_release(false)
+
+# Reject previous build if possible before uploading new one
+reject_if_possible(true)
+
+# =============================================================================
+# METADATA CONFIGURATION
+# =============================================================================
+
+# Path to metadata directory (relative to fastlane folder)
+metadata_path("./metadata")
+
+# Path to screenshots directory (relative to fastlane folder)
+screenshots_path("./screenshots")
+
+# =============================================================================
+# APP INFORMATION
+# =============================================================================
+
+# TODO: Update these with your app's information
+
+# App name (will appear on the App Store)
+# name({
+#   "en-US" => "Your App Name",
+#   "de-DE" => "Ihr App Name"
+# })
+
+# App subtitle (will appear on the App Store)
+# subtitle({
+#   "en-US" => "Your app subtitle",
+#   "de-DE" => "Ihr App-Untertitel"
+# })
+
+# App description
+# description({
+#   "en-US" => "Your comprehensive app description...",
+#   "de-DE" => "Ihre umfassende App-Beschreibung..."
+# })
+
+# Keywords for App Store search
+# keywords({
+#   "en-US" => "keyword1,keyword2,keyword3",
+#   "de-DE" => "stichwort1,stichwort2,stichwort3"
+# })
+
+# Support URL
+# support_url({
+#   "en-US" => "https://yourwebsite.com/support",
+#   "de-DE" => "https://yourwebsite.com/support"
+# })
+
+# Marketing URL
+# marketing_url({
+#   "en-US" => "https://yourwebsite.com",
+#   "de-DE" => "https://yourwebsite.com"
+# })
+
+# Privacy Policy URL (required for App Store submission)
+# privacy_url({
+#   "en-US" => "https://yourwebsite.com/privacy",
+#   "de-DE" => "https://yourwebsite.com/privacy"
+# })
+
+# =============================================================================
+# VERSION INFORMATION
+# =============================================================================
+
+# Release notes for this version
+# release_notes({
+#   "en-US" => "Bug fixes and performance improvements",
+#   "de-DE" => "Fehlerbehebungen und Leistungsverbesserungen"
+# })
+
+# Copyright information
+# copyright("#{Time.now.year} Your Company Name")
+
+# =============================================================================
+# RATING & CONTENT
+# =============================================================================
+
+# App Store rating
+# TODO: Configure based on your app's content
+# age_rating_declaration({
+#   alcohol_tobacco_or_drug_use_or_references: 0,
+#   contests: 0,
+#   gambling_and_contests: 0,
+#   horror_fear_themes: 0,
+#   mature_suggestive_themes: 0,
+#   medical_treatment_info: 0,
+#   profanity_crude_humor: 0,
+#   prolonged_graphic_sadistic_realistic_violence: 0,
+#   realistic_violence: 0,
+#   sexual_content_graphic_and_nudity: 0,
+#   sexual_content_or_nudity: 0,
+#   simulated_gambling: 0,
+#   violence_cartoon_or_fantasy: 0,
+#   violence_realistic: 0,
+#   violence_sexual: 0,
+#   graphic_and_nudity: 0,
+#   betting: 0,
+#   contests_description: nil,
+#   gambling_content: 0
+# })
+
+# =============================================================================
+# PHASED RELEASE
+# =============================================================================
+
+# Enable phased release (gradual rollout to users)
+# phased_release(true)
+
+# =============================================================================
+# APP REVIEW INFORMATION
+# =============================================================================
+
+# Information for App Store reviewers
+# TODO: Update with relevant information for your app
+# app_review_information({
+#   first_name: "John",
+#   last_name: "Doe",
+#   phone_number: "+1 555 0123",
+#   email_address: "review@yourcompany.com",
+#   demo_user: "demo@yourcompany.com",
+#   demo_password: "demopassword",
+#   notes: "Additional notes for the reviewer..."
+# })
+
+# =============================================================================
+# CONFIGURATION NOTES
+# =============================================================================
+
+# Metadata Directory Structure:
+# fastlane/metadata/
+# ├── en-US/
+# │   ├── name.txt
+# │   ├── subtitle.txt
+# │   ├── description.txt
+# │   ├── keywords.txt
+# │   ├── release_notes.txt
+# │   ├── support_url.txt
+# │   ├── marketing_url.txt
+# │   └── privacy_url.txt
+# └── de-DE/
+#     └── [same structure]
+
+# Screenshots Directory Structure:
+# fastlane/screenshots/
+# ├── en-US/
+# │   ├── iPhone67/
+# │   ├── iPhone65/
+# │   ├── iPhone58/
+# │   ├── iPhone55/
+# │   ├── iPhone47/
+# │   ├── iPhone40/
+# │   ├── iPadPro129/
+# │   ├── iPadPro/
+# │   └── iPad/
+# └── de-DE/
+#     └── [same structure]
+
+# Supported Languages:
+# "da", "de-DE", "el", "en-AU", "en-CA", "en-GB", "en-US", "es-ES", "es-MX",
+# "fi", "fr-CA", "fr-FR", "id", "it", "ja", "ko", "ms", "nl-NL", "no", "pt-BR",
+# "pt-PT", "ru", "sv", "th", "tr", "vi", "zh-Hans", "zh-Hant"
