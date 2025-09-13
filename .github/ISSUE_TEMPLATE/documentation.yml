@@ -1,0 +1,192 @@
+name: 📝 Documentation
+description: Report issues with documentation or suggest improvements
+title: "[Documentation] "
+labels: ["documentation", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us improve our documentation! Whether you found something unclear, missing, or have suggestions for improvement.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation does this relate to?
+      options:
+        - README - Project overview and getting started
+        - Setup Guides - Installation and configuration
+        - API Documentation - Code documentation
+        - Tutorials - Step-by-step guides
+        - Best Practices - Guidelines and conventions
+        - Troubleshooting - Problem-solving guides
+        - Contributing - Contribution guidelines
+        - Code Comments - Inline code documentation
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What type of documentation issue is this?
+      options:
+        - Missing Information - Something is not documented
+        - Incorrect Information - Documentation is wrong or outdated
+        - Unclear Information - Documentation is confusing or ambiguous
+        - Improvement Suggestion - Ideas for better documentation
+        - New Documentation - Request for new documentation
+        - Translation - Language or localization issue
+        - Formatting Issue - Layout or formatting problems
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Documentation Location
+      description: |
+        Where is this documentation located? Please be as specific as possible.
+        Include file names, section headings, or URLs.
+      placeholder: |
+        - File: README.md, line 45
+        - Section: "Getting Started" → "Environment Setup"
+        - URL: https://github.com/org/repo/blob/main/docs/setup.md
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: Current Content (if applicable)
+      description: |
+        What does the current documentation say? Copy the relevant section here.
+        This helps us understand exactly what needs to be changed.
+      placeholder: |
+        Current documentation content that needs attention...
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue Description
+      description: |
+        Clearly describe what's wrong with the current documentation or what's missing.
+        Be specific about what confused you or what information you couldn't find.
+      placeholder: |
+        Describe the documentation issue:
+        - What information is missing?
+        - What was confusing or unclear?
+        - What steps didn't work as described?
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-improvement
+    attributes:
+      label: Suggested Improvement
+      description: |
+        How would you improve this documentation? Provide specific suggestions for content,
+        structure, or formatting improvements.
+      placeholder: |
+        Suggested improvements:
+        - Add missing information about...
+        - Clarify the section about...
+        - Include examples for...
+        - Reorganize content to...
+        - Add troubleshooting for...
+
+  - type: textarea
+    id: target-audience
+    attributes:
+      label: Target Audience
+      description: |
+        Who is the target audience for this documentation improvement?
+        This helps us tailor the content appropriately.
+      placeholder: |
+        Target audience:
+        - Beginner developers
+        - Experienced iOS developers
+        - DevOps engineers
+        - Contributors to the project
+        - End users
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this documentation improvement?
+      options:
+        - High - Blocking users from getting started or completing tasks
+        - Medium - Causes confusion but workarounds exist
+        - Low - Nice to have improvement
+      default: 1
+
+  - type: textarea
+    id: user-impact
+    attributes:
+      label: User Impact
+      description: |
+        How does this documentation issue impact users?
+        What problems does it cause or what could be improved?
+      placeholder: |
+        Impact on users:
+        - Users get stuck at step X
+        - New contributors can't set up the project
+        - Information is hard to find
+        - Steps don't work as described
+
+  - type: textarea
+    id: additional-resources
+    attributes:
+      label: Additional Resources
+      description: |
+        Are there any external resources, examples, or references that could help
+        improve this documentation?
+      placeholder: |
+        Helpful resources:
+        - Links to good examples
+        - Reference documentation
+        - Blog posts or tutorials
+        - Screenshots or diagrams
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: |
+        Any other context that would help us understand and address this documentation issue.
+      placeholder: |
+        Additional context:
+        - Your experience level
+        - What you were trying to accomplish
+        - Environment or setup details
+        - Related issues or discussions
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution Interest
+      description: Would you be interested in helping improve this documentation?
+      options:
+        - label: I'd be willing to help write or review the improved documentation
+        - label: I can provide feedback on proposed improvements
+        - label: I can help test the updated documentation
+        - label: I can provide screenshots or examples
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched for existing documentation issues about this topic
+          required: true
+        - label: I have checked if this documentation exists elsewhere in the project
+          required: true
+        - label: I have provided specific information about the issue and location
+          required: true
+        - label: I am willing to help improve this documentation if needed

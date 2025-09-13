@@ -1,0 +1,223 @@
+# GitHub Dependabot Configuration
+# Automated dependency updates for iOS/macOS project
+
+version: 2
+updates:
+  # Swift Package Manager dependencies
+  - package-ecosystem: "swift"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+    reviewers:
+      - "maintainers-team"
+    assignees:
+      - "lead-developer"
+    labels:
+      - "dependencies"
+      - "swift-package-manager"
+      - "automated"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    versioning-strategy: increase-if-necessary
+    allow:
+      # Allow all updates for production dependencies
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    # Ignore major version updates for critical dependencies that need manual review
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    # Group related updates together
+    groups:
+      apple-frameworks:
+        patterns:
+          - "apple/*"
+        update-types:
+          - "minor"
+          - "patch"
+      testing-frameworks:
+        patterns:
+          - "quick"
+          - "nimble"
+          - "*testing*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Ruby gems (Fastlane and tooling)
+  - package-ecosystem: "bundler"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "10:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    target-branch: "develop"
+    reviewers:
+      - "devops-team"
+    assignees:
+      - "release-manager"
+    labels:
+      - "dependencies"
+      - "ruby-gems"
+      - "fastlane"
+      - "automated"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    versioning-strategy: increase-if-necessary
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    # Group Fastlane-related updates
+    groups:
+      fastlane:
+        patterns:
+          - "fastlane"
+          - "fastlane-*"
+        update-types:
+          - "minor"
+          - "patch"
+      testing:
+        patterns:
+          - "rspec*"
+          - "rubocop*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 3
+    target-branch: "develop"
+    reviewers:
+      - "devops-team"
+    assignees:
+      - "ci-cd-maintainer"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci-cd"
+      - "automated"
+    commit-message:
+      prefix: "ci"
+      prefix-development: "ci"
+      include: "scope"
+    # Group related action updates
+    groups:
+      checkout-actions:
+        patterns:
+          - "actions/checkout"
+          - "actions/setup-*"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
+      security-actions:
+        patterns:
+          - "github/codeql-action"
+          - "ossf/scorecard-action"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # CocoaPods dependencies (if using CocoaPods)
+  - package-ecosystem: "cocoapods"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+    reviewers:
+      - "ios-team"
+    assignees:
+      - "ios-lead"
+    labels:
+      - "dependencies"
+      - "cocoapods"
+      - "automated"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    versioning-strategy: increase-if-necessary
+    # Ignore major updates for pods that might break compatibility
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    # Group UI and networking libraries
+    groups:
+      ui-libraries:
+        patterns:
+          - "*UI*"
+          - "*Layout*"
+          - "SnapKit"
+        update-types:
+          - "minor"
+          - "patch"
+      networking:
+        patterns:
+          - "Alamofire"
+          - "AFNetworking"
+          - "*Network*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Docker dependencies (if using Docker for CI/CD)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "first-monday"
+      time: "08:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 2
+    target-branch: "develop"
+    reviewers:
+      - "devops-team"
+    assignees:
+      - "infrastructure-lead"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "infrastructure"
+      - "automated"
+    commit-message:
+      prefix: "build"
+      prefix-development: "build"
+      include: "scope"
+
+# Global ignore patterns for all ecosystems
+# These dependencies are ignored across all package managers
+ignore:
+  # Ignore specific packages that cause issues
+  - dependency-name: "example-problematic-package"
+    # Ignore all updates
+
+  # Ignore development dependencies that don't need frequent updates
+  - dependency-name: "*"
+    dependency-type: "development"
+    update-types: ["version-update:semver-major"]
+
+# Security updates configuration
+# Dependabot will automatically create PRs for security vulnerabilities
+# regardless of the above configuration
