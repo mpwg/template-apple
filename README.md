@@ -79,36 +79,85 @@ bundle exec fastlane match appstore
 
 ### Environment Configuration
 
+⚠️ **IMPORTANT**: All Fastlane configuration files now **REQUIRE** environment variables to be set. The configuration will fail with clear error messages if required variables are missing.
+
 1. **Copy Environment Template**:
    ```bash
    cp .env.template .env
    ```
 
-2. **Configure Apple Developer Account**:
+2. **Configure Required Environment Variables**:
+
+   #### Core Project Configuration (REQUIRED)
    ```env
+   # Project Configuration
+   SCHEME_NAME=YourAppScheme
+   WORKSPACE_NAME=YourApp.xcworkspace
+   PROJECT_NAME=YourApp.xcodeproj
+   IOS_BUNDLE_ID=com.yourcompany.yourapp
+   MACOS_BUNDLE_ID=com.yourcompany.yourapp.macos
+
+   # Apple Developer Account (REQUIRED)
    APPLE_ID=your-apple-id@example.com
    DEVELOPMENT_TEAM=YOUR_DEVELOPMENT_TEAM_ID
    APPSTORE_TEAM_ID=YOUR_APPSTORE_TEAM_ID
    ```
 
-3. **Setup App Store Connect API** (Recommended):
+   #### Code Signing Configuration (REQUIRED)
    ```env
+   # Fastlane Match (REQUIRED for release builds)
+   MATCH_GIT_URL=https://github.com/your-org/certificates-repo.git
+   MATCH_PASSWORD=your_super_secure_password
+   MATCH_GIT_BASIC_AUTHORIZATION=your_git_basic_auth_token
+
+   # CI/CD Keychain
+   KEYCHAIN_PASSWORD=your_ci_keychain_password
+   ```
+
+   #### App Store Metadata (REQUIRED for App Store submission)
+   ```env
+   # App Information
+   APP_NAME=Your App Name
+   APP_DESCRIPTION=Your comprehensive app description
+   APP_KEYWORDS=keyword1,keyword2,keyword3
+   SUPPORT_URL=https://yoursite.com/support
+   MARKETING_URL=https://yoursite.com
+   PRIVACY_URL=https://yoursite.com/privacy  # REQUIRED by Apple
+   ```
+
+   #### Optional Configuration
+   ```env
+   # App Store Connect API (Recommended for CI/CD)
    APP_STORE_CONNECT_API_KEY_KEY_ID=your_api_key_id
    APP_STORE_CONNECT_API_KEY_ISSUER_ID=your_issuer_id
    APP_STORE_CONNECT_API_KEY_CONTENT="-----BEGIN PRIVATE KEY-----\nYOUR_KEY\n-----END PRIVATE KEY-----"
+
+   # App Store Connect App IDs (Optional)
+   IOS_APPLE_ID=1234567890
+   MACOS_APPLE_ID=1234567891
+
+   # Additional Metadata (Optional)
+   APP_SUBTITLE=Your app subtitle
    ```
 
-4. **Configure Code Signing**:
-   ```env
-   MATCH_PASSWORD=your_match_repository_password
-   MATCH_GIT_URL=https://github.com/your-org/certificates-repo.git
-   MATCH_GIT_BASIC_AUTHORIZATION=your_git_basic_auth_token
-   ```
+3. **Environment Variable Validation**:
 
-5. **Setup GitHub Secrets**:
+   The template includes comprehensive validation that will:
+   - ✅ Check all required variables before running any Fastlane command
+   - ❌ Fail fast with clear, actionable error messages
+   - 📝 Provide specific setup instructions for missing variables
+   - 🔐 Validate code signing configuration before builds
+
+4. **Setup GitHub Secrets**:
    ```bash
    # Push all environment variables to GitHub secrets
    gh secret set -f .env
+   ```
+
+5. **Verify Configuration**:
+   ```bash
+   # Test that all required variables are set
+   bundle exec fastlane ios test --skip_git_check
    ```
 
 ### Fastlane Setup

@@ -3,15 +3,59 @@
 # More information: https://docs.fastlane.tools/actions/deliver/
 
 # =============================================================================
+# ENVIRONMENT VARIABLE VALIDATION
+# =============================================================================
+
+def validate_deliverfile_env_vars
+  # Core deployment variables that are strongly recommended
+  recommended_vars = {
+    "APP_NAME" => "Your app's display name on the App Store",
+    "APP_DESCRIPTION" => "Your app's description for the App Store",
+    "APP_KEYWORDS" => "Comma-separated keywords for App Store search",
+    "SUPPORT_URL" => "URL for app support (e.g., https://yoursite.com/support)",
+    "MARKETING_URL" => "URL for app marketing (e.g., https://yoursite.com)",
+    "PRIVACY_URL" => "Privacy policy URL (REQUIRED for App Store submission)"
+  }
+
+  # Privacy URL is absolutely required for App Store submission
+  if ENV["PRIVACY_URL"].nil? || ENV["PRIVACY_URL"].strip.empty?
+    puts "\n🚨 CRITICAL: PRIVACY_URL MISSING 🚨"
+    puts "\nPRIVACY_URL environment variable is REQUIRED for App Store submission."
+    puts "📝 Set PRIVACY_URL in your .env file (e.g., 'https://yoursite.com/privacy')"
+    puts "📖 Apple requires all apps to have a privacy policy URL."
+    exit(1)
+  end
+
+  missing_vars = []
+  recommended_vars.each do |var_name, description|
+    if ENV[var_name].nil? || ENV[var_name].strip.empty?
+      missing_vars << "⚠️  #{var_name}: #{description}"
+    end
+  end
+
+  unless missing_vars.empty?
+    puts "\n⚠️  RECOMMENDED ENVIRONMENT VARIABLES MISSING ⚠️"
+    puts "\nThe following variables are highly recommended for App Store deployment:"
+    puts missing_vars.join("\n")
+    puts "\n📝 Set these in your .env file for better App Store metadata management."
+    puts "💡 You can still proceed, but manual metadata entry will be required."
+  end
+end
+
+# Validate environment variables
+validate_deliverfile_env_vars
+
+# =============================================================================
 # APP STORE CONNECT CONFIGURATION
 # =============================================================================
 
-# Bundle identifier (will be automatically detected from Appfile)
-# app_identifier([[APP_IDENTIFIER]])
+# Bundle identifier (automatically detected from Appfile based on platform)
+# This is set automatically based on your Appfile configuration
 
 # Apple ID (numeric ID from App Store Connect)
-# TODO: Replace with your actual Apple ID from App Store Connect
-# apple_id("1234567890")
+# OPTIONAL: Set IOS_APPLE_ID or MACOS_APPLE_ID in your .env file if you want to specify it
+# apple_id(ENV["IOS_APPLE_ID"]) # for iOS
+# apple_id(ENV["MACOS_APPLE_ID"]) # for macOS
 
 # =============================================================================
 # SUBMISSION SETTINGS
@@ -59,52 +103,69 @@ metadata_path("./metadata")
 screenshots_path("./screenshots")
 
 # =============================================================================
-# APP INFORMATION
+# APP INFORMATION (Using Environment Variables)
 # =============================================================================
 
-# TODO: Update these with your app's information
-
 # App name (will appear on the App Store)
-# name({
-#   "en-US" => "Your App Name",
-#   "de-DE" => "Ihr App Name"
-# })
+# Uses APP_NAME environment variable if set
+if ENV["APP_NAME"] && !ENV["APP_NAME"].strip.empty?
+  name({
+    "en-US" => ENV["APP_NAME"]
+    # Add other localizations as needed
+  })
+end
 
 # App subtitle (will appear on the App Store)
-# subtitle({
-#   "en-US" => "Your app subtitle",
-#   "de-DE" => "Ihr App-Untertitel"
-# })
+# Uses APP_SUBTITLE environment variable if set
+if ENV["APP_SUBTITLE"] && !ENV["APP_SUBTITLE"].strip.empty?
+  subtitle({
+    "en-US" => ENV["APP_SUBTITLE"]
+    # Add other localizations as needed
+  })
+end
 
 # App description
-# description({
-#   "en-US" => "Your comprehensive app description...",
-#   "de-DE" => "Ihre umfassende App-Beschreibung..."
-# })
+# Uses APP_DESCRIPTION environment variable if set
+if ENV["APP_DESCRIPTION"] && !ENV["APP_DESCRIPTION"].strip.empty?
+  description({
+    "en-US" => ENV["APP_DESCRIPTION"]
+    # Add other localizations as needed
+  })
+end
 
 # Keywords for App Store search
-# keywords({
-#   "en-US" => "keyword1,keyword2,keyword3",
-#   "de-DE" => "stichwort1,stichwort2,stichwort3"
-# })
+# Uses APP_KEYWORDS environment variable if set
+if ENV["APP_KEYWORDS"] && !ENV["APP_KEYWORDS"].strip.empty?
+  keywords({
+    "en-US" => ENV["APP_KEYWORDS"]
+    # Add other localizations as needed
+  })
+end
 
 # Support URL
-# support_url({
-#   "en-US" => "https://yourwebsite.com/support",
-#   "de-DE" => "https://yourwebsite.com/support"
-# })
+# Uses SUPPORT_URL environment variable if set
+if ENV["SUPPORT_URL"] && !ENV["SUPPORT_URL"].strip.empty?
+  support_url({
+    "en-US" => ENV["SUPPORT_URL"]
+    # Add other localizations as needed
+  })
+end
 
 # Marketing URL
-# marketing_url({
-#   "en-US" => "https://yourwebsite.com",
-#   "de-DE" => "https://yourwebsite.com"
-# })
+# Uses MARKETING_URL environment variable if set
+if ENV["MARKETING_URL"] && !ENV["MARKETING_URL"].strip.empty?
+  marketing_url({
+    "en-US" => ENV["MARKETING_URL"]
+    # Add other localizations as needed
+  })
+end
 
-# Privacy Policy URL (required for App Store submission)
-# privacy_url({
-#   "en-US" => "https://yourwebsite.com/privacy",
-#   "de-DE" => "https://yourwebsite.com/privacy"
-# })
+# Privacy Policy URL (REQUIRED for App Store submission)
+# Uses PRIVACY_URL environment variable (validated above)
+privacy_url({
+  "en-US" => ENV["PRIVACY_URL"]
+  # Add other localizations as needed
+})
 
 # =============================================================================
 # VERSION INFORMATION

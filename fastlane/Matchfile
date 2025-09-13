@@ -3,12 +3,58 @@
 # More information: https://docs.fastlane.tools/actions/match/
 
 # =============================================================================
+# ENVIRONMENT VARIABLE VALIDATION
+# =============================================================================
+
+def validate_match_env_vars
+  required_vars = {
+    "MATCH_GIT_URL" => "Git URL for storing certificates (e.g., 'https://github.com/org/certs.git')",
+    "MATCH_PASSWORD" => "Password for encrypting certificates (keep this secret!)",
+    "APPLE_ID" => "Your Apple ID email address",
+    "DEVELOPMENT_TEAM" => "Your Apple Developer Team ID"
+  }
+
+  missing_vars = []
+
+  required_vars.each do |var_name, description|
+    if ENV[var_name].nil? || ENV[var_name].strip.empty?
+      missing_vars << "❌ #{var_name}: #{description}"
+    end
+  end
+
+  unless missing_vars.empty?
+    puts "\n🔐 FASTLANE MATCH CONFIGURATION ERROR 🔐"
+    puts "\nThe following environment variables are REQUIRED for code signing:"
+    puts missing_vars.join("\n")
+    puts "\n📝 Code Signing Setup Instructions:"
+    puts "1. Create a private Git repository for storing certificates"
+    puts "2. Set MATCH_GIT_URL to your certificates repository URL"
+    puts "3. Set a strong MATCH_PASSWORD for encrypting certificates"
+    puts "4. Set APPLE_ID and DEVELOPMENT_TEAM from your Apple Developer account"
+    puts "5. Run: fastlane match init"
+    puts "6. Run: fastlane match development && fastlane match appstore"
+    puts "\n📖 For more help, see the README.md file and Match documentation."
+    exit(1)
+  end
+
+  # Validate Git authorization for private repositories
+  if ENV["MATCH_GIT_URL"].to_s.include?("github.com") && ENV["MATCH_GIT_BASIC_AUTHORIZATION"].nil?
+    puts "\n⚠️  WARNING: MATCH_GIT_BASIC_AUTHORIZATION not set"
+    puts "If your certificates repository is private, you may need to set:"
+    puts "MATCH_GIT_BASIC_AUTHORIZATION for accessing the repository"
+  end
+end
+
+# Validate environment variables before configuration
+validate_match_env_vars
+
+# =============================================================================
 # GIT REPOSITORY CONFIGURATION
 # =============================================================================
 
 # Git URL for storing certificates and provisioning profiles
-# TODO: Replace with your actual certificates repository URL
-git_url(ENV["MATCH_GIT_URL"] || "https://github.com/your-org/certificates-repo.git")
+# REQUIRED: Set MATCH_GIT_URL in your .env file
+git_url(ENV["MATCH_GIT_URL"])
 
 # Git branch to use (default is "master")
 git_branch("main")
@@ -29,15 +75,25 @@ type("development") # This can be overridden in Fastfile
 # =============================================================================
 
 # App bundle identifiers to manage certificates for
-# TODO: Replace with your actual bundle identifiers
-app_identifier([
-  ENV["IOS_BUNDLE_ID"] || "com.yourcompany.yourapp",
-  ENV["MACOS_BUNDLE_ID"] || "com.yourcompany.yourapp.macos"
-])
+# REQUIRED: Set IOS_BUNDLE_ID and MACOS_BUNDLE_ID in your .env file
+bundle_ids = []
+if ENV["IOS_BUNDLE_ID"] && !ENV["IOS_BUNDLE_ID"].strip.empty?
+  bundle_ids << ENV["IOS_BUNDLE_ID"]
+end
+if ENV["MACOS_BUNDLE_ID"] && !ENV["MACOS_BUNDLE_ID"].strip.empty?
+  bundle_ids << ENV["MACOS_BUNDLE_ID"]
+end
+
+if bundle_ids.empty?
+  puts "❌ Error: At least one bundle identifier must be set (IOS_BUNDLE_ID or MACOS_BUNDLE_ID)"
+  exit(1)
+end
+
+app_identifier(bundle_ids)
 
 # Team ID for code signing
-# TODO: Replace with your actual Apple Developer Team ID
-team_id(ENV["DEVELOPMENT_TEAM"] || "YOUR_DEVELOPMENT_TEAM_ID")
+# REQUIRED: Set DEVELOPMENT_TEAM in your .env file (validated above)
+team_id(ENV["DEVELOPMENT_TEAM"])
 
 # =============================================================================
 # KEYCHAIN CONFIGURATION
@@ -47,24 +103,31 @@ team_id(ENV["DEVELOPMENT_TEAM"] || "YOUR_DEVELOPMENT_TEAM_ID")
 keychain_name(ENV["MATCH_KEYCHAIN_NAME"] || "fastlane_tmp_keychain")
 
 # Keychain password
-keychain_password(ENV["MATCH_KEYCHAIN_PASSWORD"] || "")
+# Uses environment variable if set, otherwise generates a temporary password
+keychain_password(ENV["MATCH_KEYCHAIN_PASSWORD"] || ENV["KEYCHAIN_PASSWORD"] || "")
 
 # =============================================================================
 # AUTHENTICATION
 # =============================================================================
 
 # Git basic authorization token (for private repositories)
-git_basic_authorization(ENV["MATCH_GIT_BASIC_AUTHORIZATION"])
+# Set this if your certificates repository is private
+if ENV["MATCH_GIT_BASIC_AUTHORIZATION"] && !ENV["MATCH_GIT_BASIC_AUTHORIZATION"].strip.empty?
+  git_basic_authorization(ENV["MATCH_GIT_BASIC_AUTHORIZATION"])
+end
 
 # Username for git (if using HTTPS with username/password)
-# git_user_email(ENV["GIT_USER_EMAIL"])
+if ENV["GIT_USER_EMAIL"] && !ENV["GIT_USER_EMAIL"].strip.empty?
+  git_user_email(ENV["GIT_USER_EMAIL"])
+end
 
 # =============================================================================
 # CERTIFICATE SETTINGS
 # =============================================================================
 
 # Username (Apple ID) for generating certificates
-username(ENV["APPLE_ID"] || "your-apple-id@example.com")
+# REQUIRED: Set APPLE_ID in your .env file (validated above)
+username(ENV["APPLE_ID"])
 
 # Platform to manage certificates for
 # Options: "ios", "macos", "tvos"
