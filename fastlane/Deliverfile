@@ -1,0 +1,270 @@
+# iOS/macOS Template Deliverfile
+# This file contains configuration for App Store deployment
+# More information: https://docs.fastlane.tools/actions/deliver/
+
+# =============================================================================
+# ENVIRONMENT VARIABLE VALIDATION
+# =============================================================================
+
+def validate_deliverfile_env_vars
+  # Core deployment variables that are strongly recommended
+  recommended_vars = {
+    "APP_NAME" => "Your app's display name on the App Store",
+    "APP_DESCRIPTION" => "Your app's description for the App Store",
+    "APP_KEYWORDS" => "Comma-separated keywords for App Store search",
+    "SUPPORT_URL" => "URL for app support (e.g., https://yoursite.com/support)",
+    "MARKETING_URL" => "URL for app marketing (e.g., https://yoursite.com)",
+    "PRIVACY_URL" => "Privacy policy URL (REQUIRED for App Store submission)"
+  }
+
+  # Privacy URL is absolutely required for App Store submission
+  if ENV["PRIVACY_URL"].nil? || ENV["PRIVACY_URL"].strip.empty?
+    puts "\n🚨 CRITICAL: PRIVACY_URL MISSING 🚨"
+    puts "\nPRIVACY_URL environment variable is REQUIRED for App Store submission."
+    puts "📝 Set PRIVACY_URL in your .env file (e.g., 'https://yoursite.com/privacy')"
+    puts "📖 Apple requires all apps to have a privacy policy URL."
+    exit(1)
+  end
+
+  missing_vars = []
+  recommended_vars.each do |var_name, description|
+    if ENV[var_name].nil? || ENV[var_name].strip.empty?
+      missing_vars << "⚠️  #{var_name}: #{description}"
+    end
+  end
+
+  unless missing_vars.empty?
+    puts "\n⚠️  RECOMMENDED ENVIRONMENT VARIABLES MISSING ⚠️"
+    puts "\nThe following variables are highly recommended for App Store deployment:"
+    puts missing_vars.join("\n")
+    puts "\n📝 Set these in your .env file for better App Store metadata management."
+    puts "💡 You can still proceed, but manual metadata entry will be required."
+  end
+end
+
+# Validate environment variables
+validate_deliverfile_env_vars
+
+# =============================================================================
+# APP STORE CONNECT CONFIGURATION
+# =============================================================================
+
+# Bundle identifier (automatically detected from Appfile based on platform)
+# This is set automatically based on your Appfile configuration
+
+# Apple ID (numeric ID from App Store Connect)
+# OPTIONAL: Set IOS_APPLE_ID or MACOS_APPLE_ID in your .env file if you want to specify it
+# apple_id(ENV["IOS_APPLE_ID"]) # for iOS
+# apple_id(ENV["MACOS_APPLE_ID"]) # for macOS
+
+# =============================================================================
+# SUBMISSION SETTINGS
+# =============================================================================
+
+# Skip HTML report generation
+skip_html_report(true)
+
+# Skip uploading metadata
+skip_metadata(false)
+
+# Skip uploading screenshots
+skip_screenshots(false)
+
+# Skip uploading the binary
+skip_binary_upload(false)
+
+# Skip app version update
+skip_app_version_update(false)
+
+# Force overwrite of existing metadata
+force(true)
+
+# =============================================================================
+# REVIEW SUBMISSION SETTINGS
+# =============================================================================
+
+# Automatically submit for review after upload
+submit_for_review(false)
+
+# Automatically release after approval
+automatic_release(false)
+
+# Reject previous build if possible before uploading new one
+reject_if_possible(true)
+
+# =============================================================================
+# METADATA CONFIGURATION
+# =============================================================================
+
+# Path to metadata directory (relative to fastlane folder)
+metadata_path("./metadata")
+
+# Path to screenshots directory (relative to fastlane folder)
+screenshots_path("./screenshots")
+
+# =============================================================================
+# APP INFORMATION (Using Environment Variables)
+# =============================================================================
+
+# App name (will appear on the App Store)
+# Uses APP_NAME environment variable if set
+if ENV["APP_NAME"] && !ENV["APP_NAME"].strip.empty?
+  name({
+    "en-US" => ENV["APP_NAME"]
+    # Add other localizations as needed
+  })
+end
+
+# App subtitle (will appear on the App Store)
+# Uses APP_SUBTITLE environment variable if set
+if ENV["APP_SUBTITLE"] && !ENV["APP_SUBTITLE"].strip.empty?
+  subtitle({
+    "en-US" => ENV["APP_SUBTITLE"]
+    # Add other localizations as needed
+  })
+end
+
+# App description
+# Uses APP_DESCRIPTION environment variable if set
+if ENV["APP_DESCRIPTION"] && !ENV["APP_DESCRIPTION"].strip.empty?
+  description({
+    "en-US" => ENV["APP_DESCRIPTION"]
+    # Add other localizations as needed
+  })
+end
+
+# Keywords for App Store search
+# Uses APP_KEYWORDS environment variable if set
+if ENV["APP_KEYWORDS"] && !ENV["APP_KEYWORDS"].strip.empty?
+  keywords({
+    "en-US" => ENV["APP_KEYWORDS"]
+    # Add other localizations as needed
+  })
+end
+
+# Support URL
+# Uses SUPPORT_URL environment variable if set
+if ENV["SUPPORT_URL"] && !ENV["SUPPORT_URL"].strip.empty?
+  support_url({
+    "en-US" => ENV["SUPPORT_URL"]
+    # Add other localizations as needed
+  })
+end
+
+# Marketing URL
+# Uses MARKETING_URL environment variable if set
+if ENV["MARKETING_URL"] && !ENV["MARKETING_URL"].strip.empty?
+  marketing_url({
+    "en-US" => ENV["MARKETING_URL"]
+    # Add other localizations as needed
+  })
+end
+
+# Privacy Policy URL (REQUIRED for App Store submission)
+# Uses PRIVACY_URL environment variable (validated above)
+privacy_url({
+  "en-US" => ENV["PRIVACY_URL"]
+  # Add other localizations as needed
+})
+
+# =============================================================================
+# VERSION INFORMATION
+# =============================================================================
+
+# Release notes for this version
+# release_notes({
+#   "en-US" => "Bug fixes and performance improvements",
+#   "de-DE" => "Fehlerbehebungen und Leistungsverbesserungen"
+# })
+
+# Copyright information
+# copyright("#{Time.now.year} Your Company Name")
+
+# =============================================================================
+# RATING & CONTENT
+# =============================================================================
+
+# App Store rating
+# TODO: Configure based on your app's content
+# age_rating_declaration({
+#   alcohol_tobacco_or_drug_use_or_references: 0,
+#   contests: 0,
+#   gambling_and_contests: 0,
+#   horror_fear_themes: 0,
+#   mature_suggestive_themes: 0,
+#   medical_treatment_info: 0,
+#   profanity_crude_humor: 0,
+#   prolonged_graphic_sadistic_realistic_violence: 0,
+#   realistic_violence: 0,
+#   sexual_content_graphic_and_nudity: 0,
+#   sexual_content_or_nudity: 0,
+#   simulated_gambling: 0,
+#   violence_cartoon_or_fantasy: 0,
+#   violence_realistic: 0,
+#   violence_sexual: 0,
+#   graphic_and_nudity: 0,
+#   betting: 0,
+#   contests_description: nil,
+#   gambling_content: 0
+# })
+
+# =============================================================================
+# PHASED RELEASE
+# =============================================================================
+
+# Enable phased release (gradual rollout to users)
+# phased_release(true)
+
+# =============================================================================
+# APP REVIEW INFORMATION
+# =============================================================================
+
+# Information for App Store reviewers
+# TODO: Update with relevant information for your app
+# app_review_information({
+#   first_name: "John",
+#   last_name: "Doe",
+#   phone_number: "+1 555 0123",
+#   email_address: "review@yourcompany.com",
+#   demo_user: "demo@yourcompany.com",
+#   demo_password: "demopassword",
+#   notes: "Additional notes for the reviewer..."
+# })
+
+# =============================================================================
+# CONFIGURATION NOTES
+# =============================================================================
+
+# Metadata Directory Structure:
+# fastlane/metadata/
+# ├── en-US/
+# │   ├── name.txt
+# │   ├── subtitle.txt
+# │   ├── description.txt
+# │   ├── keywords.txt
+# │   ├── release_notes.txt
+# │   ├── support_url.txt
+# │   ├── marketing_url.txt
+# │   └── privacy_url.txt
+# └── de-DE/
+#     └── [same structure]
+
+# Screenshots Directory Structure:
+# fastlane/screenshots/
+# ├── en-US/
+# │   ├── iPhone67/
+# │   ├── iPhone65/
+# │   ├── iPhone58/
+# │   ├── iPhone55/
+# │   ├── iPhone47/
+# │   ├── iPhone40/
+# │   ├── iPadPro129/
+# │   ├── iPadPro/
+# │   └── iPad/
+# └── de-DE/
+#     └── [same structure]
+
+# Supported Languages:
+# "da", "de-DE", "el", "en-AU", "en-CA", "en-GB", "en-US", "es-ES", "es-MX",
+# "fi", "fr-CA", "fr-FR", "id", "it", "ja", "ko", "ms", "nl-NL", "no", "pt-BR",
+# "pt-PT", "ru", "sv", "th", "tr", "vi", "zh-Hans", "zh-Hant"
