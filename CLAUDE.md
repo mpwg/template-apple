@@ -51,3 +51,5 @@ FASTLANE_HIDE_CHANGELOG=1
 - It has a .gitignore File that fits the content
 - It has a dependabot action for all relevant parts
 - it has the MIT License
+- dont actually add the Xcode Project in this Repo, give instructions to do so
+- Code Signing has to be done with fastlane and fastlane match
