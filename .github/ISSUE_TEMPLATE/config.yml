@@ -1,0 +1,30 @@
+# GitHub Issue Template Configuration
+
+# Set to true to require contributors to use a template for new issues
+blank_issues_enabled: false
+
+# Contact links that will be displayed on the issue creation page
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/your-org/your-repo/discussions
+    about: Ask questions and discuss ideas with the community
+
+  - name: 🔒 Security Issues
+    url: https://github.com/your-org/your-repo/security/advisories/new
+    about: Report security vulnerabilities privately
+
+  - name: 📚 Documentation
+    url: https://github.com/your-org/your-repo/wiki
+    about: Read the project documentation and guides
+
+  - name: 💼 Commercial Support
+    url: mailto:support@yourcompany.com
+    about: Contact us for commercial support and consulting
+
+  - name: 🐛 Bug Reports
+    url: https://github.com/your-org/your-repo/issues/new?template=bug_report.yml
+    about: Create a detailed bug report to help us fix issues
+
+  - name: ✨ Feature Requests
+    url: https://github.com/your-org/your-repo/issues/new?template=feature_request.yml
+    about: Suggest new features or enhancements

@@ -1,0 +1,384 @@
+# SwiftLint Configuration for iOS/macOS Development
+# This configuration follows Swift community best practices
+# and is optimized for team collaboration
+
+# Paths to include/exclude during linting
+included:
+  - Sources
+  - Tests
+  - Package.swift
+  # Add your source directories here
+
+excluded:
+  - Pods
+  - .build
+  - DerivedData
+  - fastlane
+  - scripts
+  - vendor
+  - Carthage
+  - .swiftpm
+  - "**/Generated"
+  - "**/Mocks"
+  # Add paths to exclude here
+
+# Analyzer rules (requires Swift compiler)
+analyzer_rules:
+  - unused_declaration
+  - unused_import
+  - explicit_self
+
+# Only rules (if specified, only these rules will run)
+# only_rules:
+
+# Disabled rules
+disabled_rules:
+  - trailing_whitespace # Handled by editor/formatter
+  - todo # We allow TODO comments
+  - identifier_name # We prefer descriptive names over length limits
+
+# Opt-in rules (not enabled by default)
+opt_in_rules:
+  # Closure
+  - closure_body_length
+  - closure_end_indentation
+  - closure_spacing
+
+  # Collections
+  - empty_collection_literal
+  - empty_count
+  - first_where
+  - last_where
+  - contains_over_filter_count
+  - contains_over_filter_is_empty
+  - contains_over_first_not_nil
+  - contains_over_range_nil_comparison
+
+  # Conditionals
+  - yoda_condition
+  - multiline_function_chains
+  - multiline_literal_brackets
+  - multiline_parameters
+  - multiline_parameters_brackets
+
+  # Documentation
+  - missing_docs
+  - documentation_style
+
+  # File Structure
+  - file_header
+  - file_name_no_space
+  - file_types_order
+
+  # Functions
+  - function_default_parameter_at_end
+  - implicit_return
+  - discouraged_optional_collection
+  - discouraged_optional_boolean
+
+  # Idiomatic
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - let_var_whitespace
+  - literal_expression_end_indentation
+  - modifier_order
+  - nimble_operator
+  - number_separator
+  - object_literal
+  - operator_usage_whitespace
+  - optional_enum_case_matching
+  - overridden_super_call
+  - override_in_extension
+  - pattern_matching_keywords
+  - prefer_self_type_over_type_of_self
+  - prefer_zero_over_explicit_init
+  - redundant_nil_coalescing
+  - redundant_type_annotation
+  - sorted_first_last
+  - static_operator
+  - toggle_bool
+  - unavailable_function
+  - unneeded_parentheses_in_closure_argument
+  - unowned_variable_capture
+  - vertical_parameter_alignment_on_call
+  - vertical_whitespace_closing_braces
+  - vertical_whitespace_opening_braces
+
+  # Performance
+  - empty_string
+  - reduce_into
+
+  # Security
+  - nslocalizedstring_key
+  - nslocalizedstring_require_bundle
+
+  # Style
+  - attributes
+  - collection_alignment
+  - comma_inheritance
+  - conditional_returns_on_newline
+  - empty_enum_arguments
+  - enum_case_associated_values_count
+  - explicit_enum_raw_value
+  - explicit_init
+  - extension_access_modifier
+  - fallthrough
+  - fatal_error_message
+  - joined_default_parameter
+  - legacy_random
+  - lower_acl_than_parent
+  - multiline_arguments
+  - multiline_arguments_brackets
+  - prefer_self_in_static_references
+  - private_action
+  - private_outlet
+  - prohibited_interface_builder
+  - required_enum_case
+  - single_test_class
+  - sorted_imports
+  - strict_fileprivate
+  - switch_case_on_newline
+  - test_case_accessibility
+  - trailing_closure
+  - type_contents_order
+  - unneeded_break_in_switch
+  - unused_capture_list
+  - unused_control_flow_label
+  - unused_declaration
+  - unused_import
+  - vertical_whitespace_between_cases
+
+# Configuration for specific rules
+
+# Cyclomatic Complexity
+cyclomatic_complexity:
+  warning: 15
+  error: 25
+
+# Function Body Length
+function_body_length:
+  warning: 60
+  error: 100
+
+# Function Parameter Count
+function_parameter_count:
+  warning: 6
+  error: 8
+
+# Line Length
+line_length:
+  warning: 120
+  error: 160
+  ignores_urls: true
+  ignores_function_declarations: true
+  ignores_comments: true
+
+# Type Body Length
+type_body_length:
+  warning: 300
+  error: 400
+
+# File Length
+file_length:
+  warning: 500
+  error: 1000
+
+# Type Name Length
+type_name:
+  min_length: 3
+  max_length: 50
+
+# Variable Name Length
+identifier_name:
+  min_length: 2
+  max_length: 60
+  excluded:
+    - id
+    - x
+    - y
+    - z
+    - a
+    - b
+    - i
+    - j
+    - k
+
+# Nesting Level
+nesting:
+  type_level:
+    warning: 3
+    error: 5
+  function_level:
+    warning: 4
+    error: 6
+
+# Large Tuple
+large_tuple:
+  warning: 3
+  error: 4
+
+# Generic Type Name
+generic_type_name:
+  min_length: 2
+  max_length: 30
+
+# Closure Body Length
+closure_body_length:
+  warning: 30
+  error: 50
+
+# Collection Alignment
+collection_alignment:
+  align_colons: true
+
+# Enum Case Associated Values Count
+enum_case_associated_values_count:
+  warning: 6
+  error: 8
+
+# Documentation Style
+documentation_style:
+  severity: warning
+
+# File Header
+file_header:
+  required_pattern: |
+                    \/\/
+                    \/\/.*\.swift
+                    \/\/
+                    \/\/  Created by .* on \d{1,2}\/\d{1,2}\/\d{2,4}\.
+                    \/\/
+
+# File Name
+file_name:
+  excluded:
+    - main.swift
+    - LinuxMain.swift
+    - TestHelpers.swift
+    - shim.swift
+    - Bridging-Header.h
+
+# Implicitly Unwrapped Optional
+implicitly_unwrapped_optional:
+  mode: all_except_iboutlets
+
+# Missing Docs
+missing_docs:
+  warning:
+    - public
+    - open
+  excludes_extensions: true
+  excludes_inherited_types: true
+
+# Multiline Arguments
+multiline_arguments:
+  first_argument_location: next_line
+  only_enforce_after_first_closure_on_first_line: true
+
+# Number Separator
+number_separator:
+  minimum_length: 5
+
+# Object Literal
+object_literal:
+  image_literal: false
+  color_literal: false
+
+# Private Action
+private_action:
+  only_private_members: true
+
+# Prohibited Interface Builder
+prohibited_interface_builder:
+  severity: warning
+
+# Trailing Closure
+trailing_closure:
+  only_single_muted_parameter: true
+
+# Type Contents Order
+type_contents_order:
+  order:
+    - case
+    - associated_type
+    - type_alias
+    - subtype
+    - type_property
+    - instance_property
+    - ib_outlet
+    - initializer
+    - type_method
+    - view_life_cycle_method
+    - ib_action
+    - other_method
+    - subscript
+
+# Unowned Variable Capture
+unowned_variable_capture:
+  severity: error
+
+# Unused Import
+unused_import:
+  severity: error
+  require_explicit_imports: true
+
+# Vertical Whitespace
+vertical_whitespace:
+  max_empty_lines: 2
+
+# Custom Rules
+custom_rules:
+  # Enforce proper spacing around operators
+  operator_spacing:
+    name: "Operator Spacing"
+    regex: '(\w|\))\+(\w|\()'
+    message: "Operators should be surrounded by spaces"
+    severity: warning
+
+  # Discourage force casting
+  no_force_cast:
+    name: "No Force Cast"
+    regex: 'as!'
+    message: "Avoid force casting. Use conditional casting instead"
+    severity: warning
+
+  # Encourage specific image naming
+  image_name_validation:
+    name: "Image Name Validation"
+    regex: 'UIImage\(named:\s*"[^"]*"\)'
+    message: "Consider using image literals or asset catalog references"
+    severity: warning
+
+  # Discourage print statements in production code
+  no_print_statements:
+    name: "No Print Statements"
+    regex: '\bprint\('
+    match_kinds:
+      - comment
+      - string
+    message: "Use proper logging instead of print statements"
+    severity: warning
+
+  # Enforce proper TODO format
+  todo_format:
+    name: "TODO Format"
+    regex: '\/\/\s*TODO(?!:)'
+    message: "TODO comments should follow format: // TODO: Description"
+    severity: warning
+
+  # Discourage NSLocalizedString without comment
+  localized_string_comment:
+    name: "Localized String Comment"
+    regex: 'NSLocalizedString\([^,]+,\s*comment:\s*""\)'
+    message: "NSLocalizedString should have meaningful comment"
+    severity: warning
+
+  # Enforce proper MARK usage
+  mark_format:
+    name: "MARK Format"
+    regex: '\/\/\s*MARK:\s*-\s*[A-Z]'
+    message: "MARK comments should follow format: // MARK: - Section Name"
+    severity: warning
+
+# Reporter configuration
+reporter: "xcode" # Available: xcode, json, csv, checkstyle, codeclimate, junit, html, emoji, sonarqube, markdown, github-actions-logging

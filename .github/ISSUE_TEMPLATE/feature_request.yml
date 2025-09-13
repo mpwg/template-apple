@@ -1,0 +1,168 @@
+name: ✨ Feature Request
+description: Suggest an idea or enhancement for this project
+title: "[Feature] "
+labels: ["enhancement", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please provide detailed information to help us understand and prioritize your request.
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement
+      description: |
+        Clearly describe the problem you're trying to solve or the need you're addressing.
+        Start with "As a [user type], I want [goal] so that [benefit]" if applicable.
+      placeholder: |
+        As a [user type], I want [goal] so that [benefit].
+
+        Or describe the problem/pain point you're experiencing.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: A clear and concise description of what you want to happen
+      placeholder: Describe your proposed solution in detail
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: |
+        Describe any alternative solutions or features you've considered.
+        This helps us understand the full scope of the problem.
+      placeholder: What other approaches have you considered?
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Critical - Blocking current work
+        - High - Important for upcoming work
+        - Medium - Would be nice to have
+        - Low - Minor improvement
+      default: 2
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: platforms
+    attributes:
+      label: Target Platforms
+      description: Which platforms should this feature support?
+      options:
+        - label: iOS
+        - label: macOS
+        - label: Mac Catalyst
+        - label: All platforms
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: |
+        Define specific, measurable criteria that must be met for this feature to be considered complete.
+        Use checkboxes for each criterion.
+      value: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+        - [ ] Criterion 3
+      placeholder: |
+        Define what "done" looks like:
+        - [ ] User can perform action X
+        - [ ] Feature works on all target platforms
+        - [ ] Feature is accessible and follows platform guidelines
+        - [ ] Feature has appropriate error handling
+        - [ ] Feature includes unit tests
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User Story/Use Cases
+      description: |
+        Provide specific use cases or user stories that illustrate how this feature would be used.
+        Include different scenarios if applicable.
+      placeholder: |
+        Scenario 1: When a user...
+        Scenario 2: If a user wants to...
+
+  - type: textarea
+    id: design-considerations
+    attributes:
+      label: Design Considerations
+      description: |
+        Any thoughts on UI/UX design, API design, or architectural considerations?
+        Include mockups, wireframes, or sketches if available.
+      placeholder: |
+        UI/UX considerations:
+        - Should this be a new screen or part of an existing one?
+        - Any specific design patterns to follow?
+
+        Technical considerations:
+        - API requirements
+        - Data storage needs
+        - Performance considerations
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Estimated Complexity
+      description: How complex do you think this feature would be to implement?
+      options:
+        - Small - Few hours to a day
+        - Medium - Few days to a week
+        - Large - Multiple weeks
+        - Epic - Requires breaking down into smaller features
+        - Unknown - Needs investigation
+      default: 4
+
+  - type: textarea
+    id: success-metrics
+    attributes:
+      label: Success Metrics
+      description: |
+        How would you measure the success of this feature?
+        What metrics or KPIs would indicate it's working well?
+      placeholder: |
+        - User engagement metrics
+        - Performance benchmarks
+        - User feedback scores
+        - Adoption rates
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: |
+        Add any other context, screenshots, mockups, or examples that would help understand the feature request.
+        Links to similar features in other apps or references are also helpful.
+      placeholder: |
+        - Related issues or discussions
+        - Examples from other apps
+        - Research or user feedback
+        - Timeline constraints
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched for existing feature requests that describe the same idea
+          required: true
+        - label: This feature would benefit multiple users, not just myself
+          required: true
+        - label: I have provided clear acceptance criteria and use cases
+          required: true
+        - label: I am available to provide additional clarification if needed
