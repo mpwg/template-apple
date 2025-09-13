@@ -1,10 +1,10 @@
 source "https://rubygems.org"
 
 # Fastlane for iOS/macOS automation
-gem "fastlane", "~> 2.220"
+gem "fastlane"
 
 # Additional plugins and dependencies
-gem "cocoapods", "~> 1.15"
+# gem "cocoapods"
 
 # Fastlane plugins
 # gem "fastlane-plugin-versioning"
@@ -12,4 +12,4 @@ gem "cocoapods", "~> 1.15"
 # gem "fastlane-plugin-xcov"
 
 # Development and testing
-gem "rake", "~> 13.0"
+gem "rake"
