@@ -1,0 +1,238 @@
+# iOS/macOS Template Repository .gitignore
+
+# =============================================================================
+# XCODE PROJECT FILES
+# =============================================================================
+
+# User-specific Xcode files
+*.xcuserdata
+*.xcuserdatad
+xcuserdata/
+project.xcworkspace/xcuserdata/
+
+# Xcode workspace and project user settings
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Xcode schemes (uncomment if you want to check schemes into version control)
+# *.xcscheme
+
+# Xcode breakpoints
+*.xcbkptlist
+
+# Xcode Playground
+timeline.xctimeline
+playground.xcworkspace
+
+# =============================================================================
+# BUILD ARTIFACTS
+# =============================================================================
+
+# Build products
+build/
+Build/
+DerivedData/
+*.build/
+
+# Archives
+*.xcarchive
+
+# Debugging symbols
+*.dSYM/
+*.dSYM.zip
+
+# =============================================================================
+# SWIFT PACKAGE MANAGER
+# =============================================================================
+
+# Swift Package Manager build artifacts
+.build/
+.swiftpm/
+Package.resolved
+*.swiftpm
+.swiftpm/xcode/package.xcworkspace/
+
+# Swift Playgrounds
+*.playground
+
+# =============================================================================
+# FASTLANE
+# =============================================================================
+
+# Fastlane reports and screenshots
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+fastlane/readme.md
+
+# Fastlane temporary files
+*.ipa
+*.app.dSYM.zip
+*.mobileprovision
+*.p12
+
+# =============================================================================
+# CODE SIGNING & CERTIFICATES
+# =============================================================================
+
+# Provisioning profiles
+*.mobileprovision
+*.provisionprofile
+
+# Certificate files
+*.p12
+*.cer
+*.certSigningRequest
+
+# Keychain files
+*.keychain
+*.keychain-db
+
+# =============================================================================
+# ENVIRONMENT & CONFIGURATION
+# =============================================================================
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Configuration files with sensitive data
+config.local.plist
+*-config-secret.plist
+
+# =============================================================================
+# MACOS SYSTEM FILES
+# =============================================================================
+
+# macOS system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# macOS Finder information
+.fseventsd
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# =============================================================================
+# DEPENDENCY MANAGERS
+# =============================================================================
+
+# CocoaPods
+Pods/
+*.xcworkspace
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+Carthage/Checkouts/
+
+# Ruby/Bundler (for Fastlane)
+vendor/
+.bundle/
+
+# =============================================================================
+# DEVELOPMENT TOOLS
+# =============================================================================
+
+# AppCode
+.idea/
+*.iml
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# =============================================================================
+# TESTING & COVERAGE
+# =============================================================================
+
+# Test results
+*.gcno
+*.gcda
+coverage.xml
+test-reports/
+
+# XCTest results
+*.junit
+test_output/
+
+# =============================================================================
+# TEMPORARY & CACHE FILES
+# =============================================================================
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Cache directories
+Library/Developer/
+Library/Caches/
+
+# =============================================================================
+# DOCUMENTATION
+# =============================================================================
+
+# Generated documentation
+docs/build/
+*.docset
+
+# =============================================================================
+# MISCELLANEOUS
+# =============================================================================
+
+# Backup files
+*.bak
+*.backup
+
+# Log files
+*.log
+logs/
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# =============================================================================
+# PROJECT-SPECIFIC (customize as needed)
+# =============================================================================
+
+# Add your project-specific ignore patterns here
+# Example:
+# MyApp-Secrets.plist
+# custom-config/
+
+# =============================================================================
+# CI/CD ARTIFACTS
+# =============================================================================
+
+# GitHub Actions artifacts
+.github/workflows/artifacts/
+
+# Jenkins artifacts
+jenkins/
+
+# CircleCI artifacts
+.circleci/artifacts/
