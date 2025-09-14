@@ -1,0 +1,97 @@
+---
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  PROJECT_NAME: ${{ vars.PROJECT_NAME || 'MyApp' }}
+  PRODUCT_BUNDLE_IDENTIFIER: >-
+    ${{ vars.PRODUCT_BUNDLE_IDENTIFIER || 'com.yourcompany.myapp' }}
+  IOS_DEPLOYMENT_TARGET: ${{ vars.IOS_DEPLOYMENT_TARGET || '15.0' }}
+  MACOS_DEPLOYMENT_TARGET: ${{ vars.MACOS_DEPLOYMENT_TARGET || '12.0' }}
+  SWIFT_VERSION: ${{ vars.SWIFT_VERSION || '5.0' }}
+  COPYRIGHT: >-
+    ${{ vars.COPYRIGHT || 'Copyright © 2024 Your Company. All rights reserved.' }}
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode Version
+        run: >-
+          sudo xcode-select -s /Applications/Xcode_15.0.app/Contents/Developer
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          PROJECT_NAME=${{ env.PROJECT_NAME }}
+          PRODUCT_BUNDLE_IDENTIFIER=${{ env.PRODUCT_BUNDLE_IDENTIFIER }}
+          IOS_DEPLOYMENT_TARGET=${{ env.IOS_DEPLOYMENT_TARGET }}
+          MACOS_DEPLOYMENT_TARGET=${{ env.MACOS_DEPLOYMENT_TARGET }}
+          SWIFT_VERSION=${{ env.SWIFT_VERSION }}
+          COPYRIGHT=${{ env.COPYRIGHT }}
+          DEVELOPMENT_TEAM=${{ secrets.DEVELOPMENT_TEAM }}
+          FASTLANE_APP_IDENTIFIER=${{ env.PRODUCT_BUNDLE_IDENTIFIER }}
+          FASTLANE_SCHEME=${{ env.PROJECT_NAME }}
+          APPLE_ID=${{ secrets.APPLE_ID }}
+          MATCH_PASSWORD=${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_URL=${{ secrets.MATCH_GIT_URL }}
+          EOF
+
+      - name: Cache SPM
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Developer/Xcode/DerivedData
+            ~/.cache/org.swift.swiftpm
+          key: >-
+            ${{ runner.os }}-spm-${{ hashFiles('**/*.xcodeproj/project.pbxproj') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Build iOS
+        run: bundle exec fastlane ios build
+
+      - name: Test iOS
+        run: bundle exec fastlane ios test
+
+      - name: Build macOS
+        run: bundle exec fastlane mac build
+
+      - name: Test macOS
+        run: bundle exec fastlane mac test
+
+  code-quality:
+    name: Code Quality
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode Version
+        run: >-
+          sudo xcode-select -s /Applications/Xcode_15.0.app/Contents/Developer
+
+      - name: SwiftLint
+        run: |
+          if command -v swiftlint >/dev/null 2>&1; then
+            swiftlint
+          else
+            echo "SwiftLint not found, skipping..."
+          fi

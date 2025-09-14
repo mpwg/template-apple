@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bundle check:*)",
+      "Bash(tree:*)",
+      "Bash(xcodebuild:*)",
+      "Bash(yamllint:*)",
+      "Bash(python3:*)",
+      "Bash(./verify.sh)",
+      "Bash(swift:*)",
+      "Bash(find:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

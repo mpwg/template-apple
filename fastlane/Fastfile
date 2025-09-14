@@ -1,0 +1,172 @@
+default_platform(:ios)
+
+# Load environment variables
+require 'dotenv'
+Dotenv.load
+
+before_all do
+  setup_circle_ci if ENV['CI']
+end
+
+platform :ios do
+  desc "Sync certificates and profiles using match"
+  lane :certificates do
+    match(
+      type: "development",
+      app_identifier: ENV['FASTLANE_APP_IDENTIFIER'],
+      readonly: is_ci
+    )
+
+    match(
+      type: "appstore",
+      app_identifier: ENV['FASTLANE_APP_IDENTIFIER'],
+      readonly: is_ci
+    )
+  end
+
+  desc "Build iOS app for development"
+  lane :build do
+    certificates
+
+    build_app(
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (iOS)",
+      configuration: "Debug",
+      skip_codesigning: false,
+      skip_archive: true,
+      export_method: "development"
+    )
+  end
+
+  desc "Run tests for iOS"
+  lane :test do
+    run_tests(
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (iOS)",
+      device: "iPhone 15"
+    )
+  end
+
+  desc "Build and release iOS app to TestFlight"
+  lane :beta do
+    certificates
+
+    increment_build_number(xcodeproj: "#{ENV['PROJECT_NAME']}.xcodeproj")
+
+    build_app(
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (iOS)",
+      configuration: "Release",
+      export_method: "app-store"
+    )
+
+    upload_to_testflight(
+      api_key_path: "~/.appstoreconnect/private_keys/AuthKey_#{ENV['APP_STORE_CONNECT_KEY_ID']}.p8",
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  desc "Build and release iOS app to App Store"
+  lane :release do
+    certificates
+
+    increment_build_number(xcodeproj: "#{ENV['PROJECT_NAME']}.xcodeproj")
+
+    build_app(
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (iOS)",
+      configuration: "Release",
+      export_method: "app-store"
+    )
+
+    upload_to_app_store(
+      api_key_path: "~/.appstoreconnect/private_keys/AuthKey_#{ENV['APP_STORE_CONNECT_KEY_ID']}.p8",
+      submit_for_review: true,
+      automatic_release: false,
+      force: true
+    )
+  end
+end
+
+platform :mac do
+  desc "Sync certificates and profiles using match for macOS"
+  lane :certificates do
+    match(
+      type: "development",
+      app_identifier: ENV['FASTLANE_APP_IDENTIFIER'],
+      platform: "macos",
+      readonly: is_ci
+    )
+
+    match(
+      type: "appstore",
+      app_identifier: ENV['FASTLANE_APP_IDENTIFIER'],
+      platform: "macos",
+      readonly: is_ci
+    )
+  end
+
+  desc "Build macOS app for development"
+  lane :build do
+    certificates
+
+    build_app(
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (macOS)",
+      configuration: "Debug",
+      skip_codesigning: false,
+      skip_archive: true,
+      export_method: "development"
+    )
+  end
+
+  desc "Run tests for macOS"
+  lane :test do
+    run_tests(
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (macOS)"
+    )
+  end
+
+  desc "Build and release macOS app to TestFlight"
+  lane :beta do
+    certificates
+
+    increment_build_number(xcodeproj: "#{ENV['PROJECT_NAME']}.xcodeproj")
+
+    build_app(
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (macOS)",
+      configuration: "Release",
+      export_method: "app-store"
+    )
+
+    upload_to_testflight(
+      api_key_path: "~/.appstoreconnect/private_keys/AuthKey_#{ENV['APP_STORE_CONNECT_KEY_ID']}.p8",
+      platform: "osx",
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  desc "Build and release macOS app to Mac App Store"
+  lane :release do
+    certificates
+
+    increment_build_number(xcodeproj: "#{ENV['PROJECT_NAME']}.xcodeproj")
+
+    build_app(
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (macOS)",
+      configuration: "Release",
+      export_method: "app-store"
+    )
+
+    upload_to_app_store(
+      api_key_path: "~/.appstoreconnect/private_keys/AuthKey_#{ENV['APP_STORE_CONNECT_KEY_ID']}.p8",
+      submit_for_review: true,
+      automatic_release: false,
+      force: true,
+      platform: "osx"
+    )
+  end
+end

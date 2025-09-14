@@ -1,0 +1,10 @@
+# Load environment variables
+require 'dotenv'
+Dotenv.load
+
+app_identifier(ENV['FASTLANE_APP_IDENTIFIER'] || ENV['PRODUCT_BUNDLE_IDENTIFIER'] || 'com.yourcompany.myapp')
+apple_id(ENV['APPLE_ID'] || 'your-apple-id@example.com')
+team_id(ENV['DEVELOPMENT_TEAM'] || 'YOUR_TEAM_ID')
+
+# Match configuration
+ENV["MATCH_GIT_URL"] ||= "git@github.com:#{ENV['GITHUB_REPOSITORY_OWNER']}/#{ENV['GITHUB_REPOSITORY_NAME']}-certificates.git"
