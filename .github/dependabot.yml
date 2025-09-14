@@ -25,7 +25,6 @@ updates:
       prefix: "chore"
       prefix-development: "chore"
       include: "scope"
-    versioning-strategy: increase-if-necessary
     allow:
       # Allow all updates for production dependencies
       - dependency-type: "direct"
@@ -74,7 +73,6 @@ updates:
       prefix: "chore"
       prefix-development: "chore"
       include: "scope"
-    versioning-strategy: increase-if-necessary
     allow:
       - dependency-type: "direct"
       - dependency-type: "indirect"
