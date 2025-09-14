@@ -137,57 +137,22 @@ updates:
           - "patch"
 
   # CocoaPods dependencies (if using CocoaPods)
-  - package-ecosystem: "cocoapods"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "wednesday"
-      time: "09:00"
-      timezone: "America/New_York"
-    open-pull-requests-limit: 5
-    target-branch: "develop"
-    reviewers:
-      - "ios-team"
-    assignees:
-      - "ios-lead"
-    labels:
-      - "dependencies"
-      - "cocoapods"
-      - "automated"
-    commit-message:
-      prefix: "chore"
-      prefix-development: "chore"
-      include: "scope"
-    versioning-strategy: increase-if-necessary
-    # Ignore major updates for pods that might break compatibility
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-    # Group UI and networking libraries
-    groups:
-      ui-libraries:
-        patterns:
-          - "*UI*"
-          - "*Layout*"
-          - "SnapKit"
-        update-types:
-          - "minor"
-          - "patch"
-      networking:
-        patterns:
-          - "Alamofire"
-          - "AFNetworking"
-          - "*Network*"
-        update-types:
-          - "minor"
-          - "patch"
+  # Note: CocoaPods is not currently supported by Dependabot
+  # Alternative: Use Swift Package Manager or manual dependency management
+  # - package-ecosystem: "cocoapods"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
+  #     day: "wednesday"
+  #     time: "09:00"
+  #     timezone: "America/New_York"
 
   # Docker dependencies (if using Docker for CI/CD)
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "monthly"
-      day: "first-monday"
+      day: "monday"
       time: "08:00"
       timezone: "America/New_York"
     open-pull-requests-limit: 2
@@ -205,18 +170,6 @@ updates:
       prefix: "build"
       prefix-development: "build"
       include: "scope"
-
-# Global ignore patterns for all ecosystems
-# These dependencies are ignored across all package managers
-ignore:
-  # Ignore specific packages that cause issues
-  - dependency-name: "example-problematic-package"
-    # Ignore all updates
-
-  # Ignore development dependencies that don't need frequent updates
-  - dependency-name: "*"
-    dependency-type: "development"
-    update-types: ["version-update:semver-major"]
 
 # Security updates configuration
 # Dependabot will automatically create PRs for security vulnerabilities
