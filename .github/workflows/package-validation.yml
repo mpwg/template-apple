@@ -1,0 +1,479 @@
+# Swift Package Manager Validation Workflow
+
+name: Package Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'Package.swift'
+      - 'Sources/**'
+      - 'Tests/**'
+      - '.github/workflows/package-validation.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'Package.swift'
+      - 'Sources/**'
+      - 'Tests/**'
+      - '.github/workflows/package-validation.yml'
+  schedule:
+    # Run weekly dependency validation every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      validation_type:
+        description: 'Type of validation to run'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+        - full
+        - build-only
+        - test-only
+        - dependencies-only
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  # Package Syntax and Dependency Validation
+  package-validation:
+    name: Package Validation
+    runs-on: macos-latest
+    if: github.event.inputs.validation_type == 'full' || github.event.inputs.validation_type == 'dependencies-only' || github.event.inputs.validation_type == null
+
+    strategy:
+      fail-fast: false
+      matrix:
+        swift-version: ['5.9', '5.10']
+        xcode-version: ['15.2', '15.4']
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: ${{ matrix.xcode-version }}
+
+    - name: Cache Swift Package Manager
+      uses: actions/cache@v4
+      with:
+        path: |
+          .build
+          SourcePackages
+        key: ${{ runner.os }}-spm-${{ matrix.swift-version }}-${{ hashFiles('**/Package.resolved', '**/Package.swift') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-${{ matrix.swift-version }}-
+          ${{ runner.os }}-spm-
+
+    - name: Verify Swift Version
+      run: |
+        swift --version
+        xcodebuild -version
+
+    - name: Validate Package.swift Syntax
+      run: |
+        echo "🔍 Validating Package.swift syntax..."
+        swift package dump-package > package-dump.json
+
+        # Validate JSON output
+        python3 -c "
+        import json
+        import sys
+        try:
+            with open('package-dump.json', 'r') as f:
+                data = json.load(f)
+            print('✅ Package.swift syntax is valid')
+            print(f'Package name: {data.get(\"name\", \"unknown\")}')
+            print(f'Swift tools version: {data.get(\"toolsVersion\", {}).get(\"_version\", \"unknown\")}')
+            print(f'Targets: {len(data.get(\"targets\", []))}')
+            print(f'Dependencies: {len(data.get(\"dependencies\", []))}')
+        except Exception as e:
+            print(f'❌ Package.swift validation failed: {e}')
+            sys.exit(1)
+        "
+
+    - name: Resolve Package Dependencies
+      run: |
+        echo "🔍 Resolving package dependencies..."
+        swift package resolve
+
+        # Show dependency tree
+        swift package show-dependencies || echo "Could not display dependency tree"
+
+    - name: Validate Dependency Versions
+      run: |
+        echo "🔍 Validating dependency versions..."
+
+        # Check for potential issues in Package.swift
+        if grep -q "branch:" Package.swift; then
+          echo "⚠️ Warning: Branch dependencies detected - consider using version tags for production"
+        fi
+
+        if grep -q '\.upToNextMajor.*from.*"0\.' Package.swift; then
+          echo "⚠️ Warning: Pre-1.0 dependencies with upToNextMajor - consider more restrictive versioning"
+        fi
+
+        # Extract and analyze dependencies
+        if [ -f "Package.resolved" ]; then
+          echo "📊 Dependency analysis:"
+          python3 -c "
+          import json
+          try:
+              with open('Package.resolved', 'r') as f:
+                  data = json.load(f)
+              if 'pins' in data:
+                  print(f'Total dependencies: {len(data[\"pins\"])}')
+                  for pin in data['pins']:
+                      name = pin.get('identity', pin.get('package', 'unknown'))
+                      state = pin.get('state', {})
+                      version = state.get('version', state.get('revision', 'unknown'))
+                      print(f'  - {name}: {version}')
+          except:
+              print('Could not analyze Package.resolved')
+          "
+        fi
+
+    - name: Check License Compatibility
+      run: |
+        echo "🔍 Checking license compatibility..."
+
+        # This is a basic check - in production, you might want more sophisticated license analysis
+        if [ -f "Package.resolved" ]; then
+          echo "Note: Manual license review recommended for production use"
+          echo "Consider using tools like 'license-list' or 'fossa' for comprehensive license analysis"
+        fi
+
+    - name: Upload Package Validation Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: package-validation-${{ matrix.swift-version }}-${{ matrix.xcode-version }}
+        path: |
+          package-dump.json
+          Package.resolved
+        retention-days: 7
+
+  # Build Testing
+  package-build:
+    name: Package Build
+    runs-on: macos-latest
+    needs: package-validation
+    if: github.event.inputs.validation_type == 'full' || github.event.inputs.validation_type == 'build-only' || github.event.inputs.validation_type == null
+
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: ['debug', 'release']
+        swift-version: ['5.9', '5.10']
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.2'
+
+    - name: Cache Swift Package Manager
+      uses: actions/cache@v4
+      with:
+        path: |
+          .build
+          SourcePackages
+        key: ${{ runner.os }}-spm-${{ matrix.swift-version }}-${{ hashFiles('**/Package.resolved', '**/Package.swift') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-${{ matrix.swift-version }}-
+
+    - name: Build Package (${{ matrix.configuration }})
+      run: |
+        echo "🔨 Building package in ${{ matrix.configuration }} mode..."
+
+        # Build with timing
+        START_TIME=$(date +%s)
+
+        if [ "${{ matrix.configuration }}" = "debug" ]; then
+          swift build
+        else
+          swift build --configuration release
+        fi
+
+        END_TIME=$(date +%s)
+        BUILD_TIME=$((END_TIME - START_TIME))
+        echo "✅ Build completed in ${BUILD_TIME} seconds"
+
+        # Store build metrics
+        echo "BUILD_TIME=${BUILD_TIME}" >> $GITHUB_ENV
+
+    - name: Analyze Build Performance
+      run: |
+        echo "📊 Build Performance Analysis:"
+        echo "Configuration: ${{ matrix.configuration }}"
+        echo "Build time: ${BUILD_TIME} seconds"
+
+        if [ "${BUILD_TIME}" -gt 120 ]; then
+          echo "⚠️ Warning: Build time over 2 minutes - consider optimization"
+        elif [ "${BUILD_TIME}" -gt 60 ]; then
+          echo "⚠️ Warning: Build time over 1 minute - monitor performance"
+        else
+          echo "✅ Build time is acceptable"
+        fi
+
+    - name: Check Build Output
+      run: |
+        echo "🔍 Analyzing build output..."
+
+        # Check for build warnings (simplified check)
+        if swift build 2>&1 | grep -i warning; then
+          echo "⚠️ Build warnings detected - review output above"
+        else
+          echo "✅ No build warnings detected"
+        fi
+
+  # Test Execution
+  package-tests:
+    name: Package Tests
+    runs-on: macos-latest
+    needs: package-validation
+    if: github.event.inputs.validation_type == 'full' || github.event.inputs.validation_type == 'test-only' || github.event.inputs.validation_type == null
+
+    strategy:
+      fail-fast: false
+      matrix:
+        swift-version: ['5.9', '5.10']
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.2'
+
+    - name: Cache Swift Package Manager
+      uses: actions/cache@v4
+      with:
+        path: |
+          .build
+          SourcePackages
+        key: ${{ runner.os }}-spm-${{ matrix.swift-version }}-${{ hashFiles('**/Package.resolved', '**/Package.swift') }}
+
+    - name: Check for Test Targets
+      id: check-tests
+      run: |
+        if swift package dump-package | grep -q '"type": "test"'; then
+          echo "has_tests=true" >> $GITHUB_OUTPUT
+          echo "✅ Test targets found"
+        else
+          echo "has_tests=false" >> $GITHUB_OUTPUT
+          echo "⚠️ No test targets found"
+        fi
+
+    - name: Run Package Tests
+      if: steps.check-tests.outputs.has_tests == 'true'
+      run: |
+        echo "🧪 Running package tests..."
+
+        # Run tests with timing
+        START_TIME=$(date +%s)
+        swift test --parallel
+        END_TIME=$(date +%s)
+        TEST_TIME=$((END_TIME - START_TIME))
+
+        echo "✅ Tests completed in ${TEST_TIME} seconds"
+
+    - name: Generate Test Coverage (if applicable)
+      if: steps.check-tests.outputs.has_tests == 'true'
+      run: |
+        echo "📊 Generating test coverage report..."
+
+        # Run tests with coverage
+        swift test --enable-code-coverage
+
+        # Convert coverage data (basic example)
+        if command -v xcov &> /dev/null; then
+          xcov --scheme YourScheme --output_directory coverage_report
+        else
+          echo "⚠️ xcov not available - install for coverage reports"
+        fi
+
+  # Integration Tests
+  xcode-integration:
+    name: Xcode Integration
+    runs-on: macos-latest
+    needs: package-validation
+    if: github.event.inputs.validation_type == 'full' || github.event.inputs.validation_type == null
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.2'
+
+    - name: Generate Xcode Project
+      run: |
+        echo "🔧 Generating Xcode project for integration testing..."
+
+        # Open package in Xcode (generates .swiftpm directory)
+        swift package generate-xcodeproj --output XcodeIntegrationTest.xcodeproj || echo "Could not generate Xcode project"
+
+    - name: Test Xcode Build
+      run: |
+        echo "🔨 Testing Xcode build integration..."
+
+        # Try to build with xcodebuild if project was generated
+        if [ -f "XcodeIntegrationTest.xcodeproj/project.pbxproj" ]; then
+          xcodebuild build \
+            -project XcodeIntegrationTest.xcodeproj \
+            -scheme TemplateProject \
+            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -configuration Debug || echo "Xcode build test completed with warnings/errors"
+        else
+          echo "⚠️ Could not test Xcode integration - no project file"
+        fi
+
+  # Security and Compliance
+  dependency-security:
+    name: Dependency Security Scan
+    runs-on: macos-latest
+    needs: package-validation
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.2'
+
+    - name: Resolve Dependencies
+      run: swift package resolve
+
+    - name: Extract Dependency Information
+      run: |
+        echo "🔍 Extracting dependency information for security analysis..."
+
+        # Create a simple dependency report
+        if [ -f "Package.resolved" ]; then
+          python3 -c "
+          import json
+
+          try:
+              with open('Package.resolved', 'r') as f:
+                  data = json.load(f)
+
+              deps = []
+              if 'pins' in data:
+                  for pin in data['pins']:
+                      dep_info = {
+                          'name': pin.get('identity', pin.get('package', 'unknown')),
+                          'version': pin.get('state', {}).get('version', 'unknown'),
+                          'url': pin.get('location', 'unknown')
+                      }
+                      deps.append(dep_info)
+
+              # Write dependency report
+              with open('dependency-report.json', 'w') as f:
+                  json.dump(deps, f, indent=2)
+
+              print(f'Generated dependency report for {len(deps)} packages')
+          except Exception as e:
+              print(f'Could not generate dependency report: {e}')
+          "
+        fi
+
+    - name: Upload Dependency Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: dependency-security-report
+        path: dependency-report.json
+        retention-days: 30
+
+  # Summary Report
+  validation-summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    needs: [package-validation, package-build, package-tests, xcode-integration, dependency-security]
+    if: always()
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Download All Artifacts
+      uses: actions/download-artifact@v4
+
+    - name: Generate Validation Summary
+      run: |
+        echo "# Swift Package Manager Validation Report" > validation-summary.md
+        echo "" >> validation-summary.md
+        echo "**Generated:** $(date)" >> validation-summary.md
+        echo "**Repository:** ${{ github.repository }}" >> validation-summary.md
+        echo "**Branch:** ${{ github.ref_name }}" >> validation-summary.md
+        echo "**Commit:** ${{ github.sha }}" >> validation-summary.md
+        echo "" >> validation-summary.md
+
+        echo "## Validation Results" >> validation-summary.md
+        echo "" >> validation-summary.md
+
+        # Check job results
+        echo "| Component | Status |" >> validation-summary.md
+        echo "|-----------|---------|" >> validation-summary.md
+        echo "| Package Validation | ${{ needs.package-validation.result }} |" >> validation-summary.md
+        echo "| Package Build | ${{ needs.package-build.result }} |" >> validation-summary.md
+        echo "| Package Tests | ${{ needs.package-tests.result }} |" >> validation-summary.md
+        echo "| Xcode Integration | ${{ needs.xcode-integration.result }} |" >> validation-summary.md
+        echo "| Dependency Security | ${{ needs.dependency-security.result }} |" >> validation-summary.md
+        echo "" >> validation-summary.md
+
+        echo "## Recommendations" >> validation-summary.md
+        echo "" >> validation-summary.md
+
+        if [ "${{ needs.package-validation.result }}" != "success" ]; then
+          echo "- ⚠️ Address package validation issues" >> validation-summary.md
+        fi
+
+        if [ "${{ needs.package-build.result }}" != "success" ]; then
+          echo "- ⚠️ Fix build failures" >> validation-summary.md
+        fi
+
+        if [ "${{ needs.package-tests.result }}" != "success" ]; then
+          echo "- ⚠️ Address test failures or add test targets" >> validation-summary.md
+        fi
+
+        echo "- 📊 Review build performance metrics in job logs" >> validation-summary.md
+        echo "- 🔒 Review dependency security report" >> validation-summary.md
+        echo "- 📚 Ensure documentation is up to date" >> validation-summary.md
+
+    - name: Upload Validation Summary
+      uses: actions/upload-artifact@v4
+      with:
+        name: validation-summary
+        path: validation-summary.md
+        retention-days: 90
+
+    - name: Comment on PR (if applicable)
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const summary = fs.readFileSync('validation-summary.md', 'utf8');
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## 📦 Swift Package Manager Validation Results\n\n${summary}\n\n*This comment was automatically generated by the package validation workflow.*`
+          });

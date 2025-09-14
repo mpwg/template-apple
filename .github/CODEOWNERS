@@ -1,0 +1,56 @@
+# Code Owners Configuration
+# This file defines individuals or teams responsible for code in this repository.
+# Order is important; the last matching pattern takes precedence.
+
+# Global owners - these users/teams are requested as reviewers for all changes
+* @maintainers-team
+
+# iOS/Swift specific files
+*.swift @ios-team @swift-experts
+*.xcodeproj @ios-team
+*.xcworkspace @ios-team
+*.plist @ios-team
+*.storyboard @ios-team @ui-team
+*.xib @ios-team @ui-team
+
+# Package Manager files
+Package.swift @swift-experts @maintainers-team
+*.podspec @ios-team
+Cartfile* @ios-team
+*.xcconfig @ios-team
+
+# Fastlane configuration
+fastlane/ @release-team @maintainers-team
+Fastfile @release-team @maintainers-team
+Appfile @release-team @maintainers-team
+Matchfile @release-team
+
+# CI/CD and automation
+.github/ @devops-team @maintainers-team
+*.yml @devops-team
+*.yaml @devops-team
+Dockerfile* @devops-team
+scripts/ @devops-team @maintainers-team
+
+# Documentation
+*.md @documentation-team
+README* @documentation-team @maintainers-team
+
+# Configuration and environment
+.env* @devops-team @maintainers-team
+*.json @maintainers-team
+
+# Testing
+*Test* @ios-team @qa-team
+*Tests/ @ios-team @qa-team
+UITests/ @ios-team @qa-team @ui-team
+
+# Security sensitive files
+SECURITY.md @security-team @maintainers-team
+*.p12 @security-team @release-team
+*.mobileprovision @security-team @release-team
+
+# Legal and licensing
+LICENSE* @legal-team @maintainers-team
+NOTICE* @legal-team
+COPYRIGHT* @legal-team
