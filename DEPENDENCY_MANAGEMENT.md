@@ -110,10 +110,13 @@ eval_gemfile(plugins_path) if File.exist?(plugins_path)
 
 **Location**: `Podfile` and `Podfile.lock`
 
-**Management Strategy**:
+**Note**: CocoaPods is not currently supported by Dependabot for automated updates. If you're using CocoaPods in your project, you'll need to manage updates manually or consider migrating to Swift Package Manager for better automation support.
+
+**Manual Management Strategy**:
 - Pin major versions to avoid breaking changes
-- Regular updates for security patches
+- Regular manual updates for security patches
 - Test thoroughly after updates
+- Consider Swift Package Manager migration for better automation
 
 ## Automated Updates with Dependabot
 
@@ -132,8 +135,9 @@ Dependabot is configured via `.github/dependabot.yml` to automatically:
 | Swift Package Manager | Tuesday | 09:00 | `develop` | `maintainers-team` |
 | Ruby Gems | Tuesday | 10:00 | `develop` | `devops-team` |
 | GitHub Actions | Monday | 08:00 | `develop` | `devops-team` |
-| CocoaPods | Wednesday | 09:00 | `develop` | `ios-team` |
-| Docker | First Monday | 08:00 | `develop` | `infrastructure-team` |
+| Docker | Monday | 08:00 | `develop` | `infrastructure-team` |
+
+**Note**: CocoaPods is not supported by Dependabot and requires manual dependency management.
 
 ### Automatic vs Manual Review
 
