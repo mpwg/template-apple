@@ -1,238 +1,120 @@
-# iOS/macOS Template Repository .gitignore
+# Xcode
+#
+# gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
 
-# =============================================================================
-# XCODE PROJECT FILES
-# =============================================================================
-
-# User-specific Xcode files
-*.xcuserdata
-*.xcuserdatad
+## User settings
 xcuserdata/
-project.xcworkspace/xcuserdata/
 
-# Xcode workspace and project user settings
-*.xcworkspace/xcuserdata/
-*.xcodeproj/xcuserdata/
-*.xcodeproj/project.xcworkspace/xcuserdata/
+## Compatibility with Xcode 8 and earlier (ignoring not required starting Xcode 9)
+*.xcscmblueprint
+*.xccheckout
 
-# Xcode schemes (uncomment if you want to check schemes into version control)
-# *.xcscheme
+## Compatibility with Xcode 9 (ignoring not required starting Xcode 10)
+*.xcuserstate
 
-# Xcode breakpoints
-*.xcbkptlist
+## Xcode Patch
+*.xcuserstate
 
-# Xcode Playground
+## Build generated
+build/
+DerivedData/
+
+## Various settings
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+## Obj-C/Swift specific
+*.hmap
+
+## App packaging
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## Playgrounds
 timeline.xctimeline
 playground.xcworkspace
 
-# =============================================================================
-# BUILD ARTIFACTS
-# =============================================================================
-
-# Build products
-build/
-Build/
-DerivedData/
-*.build/
-
-# Archives
-*.xcarchive
-
-# Debugging symbols
-*.dSYM/
-*.dSYM.zip
-
-# =============================================================================
-# SWIFT PACKAGE MANAGER
-# =============================================================================
-
-# Swift Package Manager build artifacts
-.build/
+# Swift Package Manager
+#
+# Add this line if you want to avoid checking in source code from Swift Package Manager dependencies.
+# Packages/
+# Package.pins
+# Package.resolved
+# *.xcodeproj
+#
+# Xcode automatically generates this directory with a .xcworkspacedata file and xcuserdata
+# hence it is not needed unless you have added a package configuration file to your project
 .swiftpm/
 Package.resolved
-*.swiftpm
-.swiftpm/xcode/package.xcworkspace/
 
-# Swift Playgrounds
-*.playground
+# CocoaPods
+#
+# We recommend against adding the Pods directory to your .gitignore. However
+# you should judge for yourself, the pros and cons are mentioned at:
+# https://guides.cocoapods.org/using/using-cocoapods.html#should-i-check-the-pods-directory-into-source-control
+#
+Pods/
+#
+# Add this line if you want to avoid checking in source code from the Xcode workspace
+*.xcworkspace
 
-# =============================================================================
-# FASTLANE
-# =============================================================================
+# Carthage
+#
+# Add this line if you want to avoid checking in source code from Carthage dependencies.
+Carthage/Checkouts
+Carthage/Build/
 
-# Fastlane reports and screenshots
+# Accio dependency management
+Dependencies/
+.accio/
+
+# fastlane
+#
+# It is recommended to not store the screenshots in the git repo.
+# Instead, use fastlane to re-generate the screenshots whenever they are needed.
+# For more information about the recommended setup visit:
+# https://docs.fastlane.tools/best-practices/source-control/
+
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
-fastlane/readme.md
 
-# Fastlane temporary files
-*.ipa
-*.app.dSYM.zip
-*.mobileprovision
-*.p12
+# Code Injection
+#
+# After new code Injection tools there's a generated folder /iOSInjectionProject
+# https://github.com/johnno1962/injectionforxcode
 
-# =============================================================================
-# CODE SIGNING & CERTIFICATES
-# =============================================================================
+iOSInjectionProject/
 
-# Provisioning profiles
-*.mobileprovision
-*.provisionprofile
-
-# Certificate files
-*.p12
-*.cer
-*.certSigningRequest
-
-# Keychain files
-*.keychain
-*.keychain-db
-
-# =============================================================================
-# ENVIRONMENT & CONFIGURATION
-# =============================================================================
-
-# Environment variables
+# Environment Variables
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# Configuration files with sensitive data
-config.local.plist
-*-config-secret.plist
-
-# =============================================================================
-# MACOS SYSTEM FILES
-# =============================================================================
-
-# macOS system files
+# macOS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
 
-# macOS Finder information
-.fseventsd
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-
-# =============================================================================
-# DEPENDENCY MANAGERS
-# =============================================================================
-
-# CocoaPods
-Pods/
-*.xcworkspace
-Podfile.lock
-
-# Carthage
-Carthage/Build/
-Carthage/Checkouts/
-
-# Ruby/Bundler (for Fastlane)
-vendor/
+# Ruby / Bundler
+vendor/bundle/
 .bundle/
-
-# =============================================================================
-# DEVELOPMENT TOOLS
-# =============================================================================
-
-# AppCode
-.idea/
-*.iml
-
-# VSCode
-.vscode/
-*.code-workspace
-
-# Sublime Text
-*.sublime-project
-*.sublime-workspace
-
-# =============================================================================
-# TESTING & COVERAGE
-# =============================================================================
-
-# Test results
-*.gcno
-*.gcda
-coverage.xml
-test-reports/
-
-# XCTest results
-*.junit
-test_output/
-
-# =============================================================================
-# TEMPORARY & CACHE FILES
-# =============================================================================
 
 # Temporary files
 *.tmp
 *.temp
-*.swp
-*.swo
-*~
 
-# Cache directories
-Library/Developer/
-Library/Caches/
+# IDE
+.vscode/
+.idea/
 
-# =============================================================================
-# DOCUMENTATION
-# =============================================================================
-
-# Generated documentation
-docs/build/
-*.docset
-
-# =============================================================================
-# MISCELLANEOUS
-# =============================================================================
-
-# Backup files
-*.bak
-*.backup
-
-# Log files
+# Logs
 *.log
-logs/
-
-# Database files
-*.sqlite
-*.sqlite3
-*.db
-
-# Archive files
-*.zip
-*.tar.gz
-*.rar
-
-# =============================================================================
-# PROJECT-SPECIFIC (customize as needed)
-# =============================================================================
-
-# Add your project-specific ignore patterns here
-# Example:
-# MyApp-Secrets.plist
-# custom-config/
-
-# =============================================================================
-# CI/CD ARTIFACTS
-# =============================================================================
-
-# GitHub Actions artifacts
-.github/workflows/artifacts/
-
-# Jenkins artifacts
-jenkins/
-
-# CircleCI artifacts
-.circleci/artifacts/

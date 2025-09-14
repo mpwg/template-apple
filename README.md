@@ -1,303 +1,275 @@
-# iOS/macOS Template Repository
+# iOS/macOS App Template
 
-A comprehensive template repository for iOS and macOS development with modern best practices, automated workflows, and professional tooling.
+A simple, clean template for building iOS, iPadOS, and macOS applications with Mac Catalyst support. This template includes GitHub Actions CI/CD, Fastlane automation, and Dependabot for dependency management.
 
-## 🚀 Features
+## Features
 
-- **Modern iOS/macOS Development**: Target iOS 26+, macOS 26+ with Xcode 26
-- **Automated CI/CD**: GitHub Actions workflow for building, testing, and deployment
-- **Code Signing**: Fastlane Match for automated certificate and provisioning profile management
-- **Dependency Management**: Dependabot for automated dependency updates
-- **Professional Structure**: Well-organized project structure following best practices
-- **Template Ready**: Configured as a GitHub template repository for easy project creation
+- ✅ iOS/iPadOS app support
+- ✅ macOS app support
+- ✅ Mac Catalyst support (iOS app running on macOS)
+- ✅ SwiftUI-based architecture
+- ✅ GitHub Actions CI/CD pipeline
+- ✅ Fastlane automation for builds and deployments
+- ✅ Dependabot for automated dependency updates
+- ✅ Xcode 15+ compatible
+- ✅ Simple, readable code structure
 
-## 📋 Prerequisites
+## Quick Setup
 
-- **Xcode 26** or later
-- **iOS 26** or later (for iOS targets)
-- **macOS 26** or later (for macOS targets)
-- **Ruby** (for Fastlane)
-- **Bundler** (for Ruby gem management)
-- **Git** (for version control)
-- **GitHub CLI** (optional, for enhanced GitHub integration)
+### 1. Configure Your Project
 
-## 🏁 Quick Start
-
-### 1. Use This Template
-
-Click the "Use this template" button at the top of this repository or visit:
-```
-https://github.com/your-org/template/generate
-```
-
-### 2. Clone Your New Repository
+Copy `.env.template` to `.env` and update with your project details:
 
 ```bash
-git clone https://github.com/your-org/your-new-project.git
-cd your-new-project
-```
-
-### 3. Setup Environment
-
-```bash
-# Copy environment template
 cp .env.template .env
-
-# Edit .env with your actual values
-nano .env
-
-# Install dependencies
-bundle install
 ```
 
-### 4. Create Xcode Project
-
-**Important**: This template does not include an Xcode project file. Create your Xcode project:
-
-1. Open Xcode 26
-2. Create a new project in the repository root
-3. Choose your desired template (iOS App, macOS App, etc.)
-4. Configure your project settings:
-   - **Product Name**: Your app name
-   - **Bundle Identifier**: com.yourorg.yourapp
-   - **Language**: Swift
-   - **Use Core Data**: As needed
-   - **Include Tests**: Recommended
-
-### 5. Configure Code Signing
+Then edit `.env`:
 
 ```bash
-# Initialize Fastlane Match
-bundle exec fastlane match init
+# Project Configuration
+PROJECT_NAME=YourAppName
+DISPLAY_NAME=Your App Name
+PRODUCT_BUNDLE_IDENTIFIER=com.yourcompany.yourapp
+ORGANIZATION_NAME=Your Company Name
+ORGANIZATION_IDENTIFIER=com.yourcompany
+COPYRIGHT=Copyright © 2024 Your Company Name. All rights reserved.
 
-# Generate certificates and profiles
-bundle exec fastlane match development
-bundle exec fastlane match appstore
+# Development Team (Apple Developer)
+DEVELOPMENT_TEAM=ABCD123456
+
+# App Store Connect API
+APP_STORE_CONNECT_KEY_ID=ABC123DEF4
+APP_STORE_CONNECT_ISSUER_ID=12345678-1234-1234-1234-123456789012
+
+# Deployment Targets
+IOS_DEPLOYMENT_TARGET=15.0
+MACOS_DEPLOYMENT_TARGET=12.0
+SWIFT_VERSION=5.0
+
+# GitHub Repository
+GITHUB_REPOSITORY_OWNER=yourusername
+GITHUB_REPOSITORY_NAME=yourapp
+
+# Fastlane Configuration
+APPLE_ID=your-apple-id@example.com
+FASTLANE_APP_IDENTIFIER=com.yourcompany.yourapp
+FASTLANE_SCHEME=YourAppName
+
+# Fastlane Match (Code Signing)
+MATCH_GIT_URL=git@github.com:yourusername/yourapp-certificates.git
+MATCH_PASSWORD=your_match_repository_passphrase
 ```
 
-## 🛠 Setup Instructions
+**Important**: Add `.env` to your `.gitignore` file to keep your secrets safe!
 
-### Environment Configuration
+### 2. Rename Files and Folders
 
-⚠️ **IMPORTANT**: All Fastlane configuration files now **REQUIRE** environment variables to be set. The configuration will fail with clear error messages if required variables are missing.
+After updating the config, rename the following:
+- `MyApp.xcodeproj` → `YourAppName.xcodeproj`
+- `MyApp/` folder → `YourAppName/`
+- Update project name in Xcode
 
-1. **Copy Environment Template**:
-   ```bash
-   cp .env.template .env
-   ```
+### 3. Set up Fastlane Match for Code Signing
 
-2. **Configure Required Environment Variables**:
+Create a private repository for your certificates:
 
-   #### Core Project Configuration (REQUIRED)
-   ```env
-   # Project Configuration
-   SCHEME_NAME=YourAppScheme
-   WORKSPACE_NAME=YourApp.xcworkspace
-   PROJECT_NAME=YourApp.xcodeproj
-   IOS_BUNDLE_ID=com.yourcompany.yourapp
-   MACOS_BUNDLE_ID=com.yourcompany.yourapp.macos
+```bash
+# Create a new private repository (replace with your details)
+gh repo create yourapp-certificates --private
 
-   # Apple Developer Account (REQUIRED)
-   APPLE_ID=your-apple-id@example.com
-   DEVELOPMENT_TEAM=YOUR_DEVELOPMENT_TEAM_ID
-   APPSTORE_TEAM_ID=YOUR_APPSTORE_TEAM_ID
-   ```
+# Initialize match (will create certificates repository)
+fastlane match init
+```
 
-   #### Code Signing Configuration (REQUIRED)
-   ```env
-   # Fastlane Match (REQUIRED for release builds)
-   MATCH_GIT_URL=https://github.com/your-org/certificates-repo.git
-   MATCH_PASSWORD=your_super_secure_password
-   MATCH_GIT_BASIC_AUTHORIZATION=your_git_basic_auth_token
+### 4. Configure GitHub Secrets and Variables
 
-   # CI/CD Keychain
-   KEYCHAIN_PASSWORD=your_ci_keychain_password
-   ```
+**Automated Setup (Recommended):**
 
-   #### App Store Metadata (REQUIRED for App Store submission)
-   ```env
-   # App Information
-   APP_NAME=Your App Name
-   APP_DESCRIPTION=Your comprehensive app description
-   APP_KEYWORDS=keyword1,keyword2,keyword3
-   SUPPORT_URL=https://yoursite.com/support
-   MARKETING_URL=https://yoursite.com
-   PRIVACY_URL=https://yoursite.com/privacy  # REQUIRED by Apple
-   ```
+After configuring your `.env` file, run the automated GitHub setup:
 
-   #### Optional Configuration
-   ```env
-   # App Store Connect API (Recommended for CI/CD)
-   APP_STORE_CONNECT_API_KEY_KEY_ID=your_api_key_id
-   APP_STORE_CONNECT_API_KEY_ISSUER_ID=your_issuer_id
-   APP_STORE_CONNECT_API_KEY_CONTENT="-----BEGIN PRIVATE KEY-----\nYOUR_KEY\n-----END PRIVATE KEY-----"
+```bash
+# Make sure you're authenticated with GitHub CLI
+gh auth login
 
-   # App Store Connect App IDs (Optional)
-   IOS_APPLE_ID=1234567890
-   MACOS_APPLE_ID=1234567891
+# Run the automated setup script
+./github-setup.sh
+```
 
-   # Additional Metadata (Optional)
-   APP_SUBTITLE=Your app subtitle
-   ```
+This script will automatically:
+- Import all non-sensitive variables as GitHub Variables
+- Import sensitive data as GitHub Secrets
+- Skip placeholder/template values
+- Provide instructions for manual steps
 
-3. **Environment Variable Validation**:
+**Manual Setup:**
 
-   The template includes comprehensive validation that will:
-   - ✅ Check all required variables before running any Fastlane command
-   - ❌ Fail fast with clear, actionable error messages
-   - 📝 Provide specific setup instructions for missing variables
-   - 🔐 Validate code signing configuration before builds
+Alternatively, set up manually in your GitHub repository (Settings → Secrets and Variables → Actions):
 
-4. **Setup GitHub Secrets**:
-   ```bash
-   # Push all environment variables to GitHub secrets
-   gh secret set -f .env
-   ```
+#### Required Secrets:
+- `DEVELOPMENT_TEAM`: Your Apple Developer Team ID
+- `APP_STORE_CONNECT_KEY_ID`: App Store Connect API Key ID
+- `APP_STORE_CONNECT_ISSUER_ID`: App Store Connect Issuer ID
+- `APP_STORE_CONNECT_PRIVATE_KEY`: App Store Connect API Private Key (the .p8 file content)
+- `APPLE_ID`: Your Apple ID email
+- `MATCH_PASSWORD`: Passphrase for your match certificates repository
+- `MATCH_GIT_URL`: Git URL for your certificates repository
 
-5. **Verify Configuration**:
-   ```bash
-   # Test that all required variables are set
-   bundle exec fastlane ios test --skip_git_check
-   ```
+#### Variables (non-sensitive configuration):
+- `PROJECT_NAME`: Your app name
+- `PRODUCT_BUNDLE_IDENTIFIER`: Your bundle ID
+- `IOS_DEPLOYMENT_TARGET`: Minimum iOS version
+- `MACOS_DEPLOYMENT_TARGET`: Minimum macOS version
+- `SWIFT_VERSION`: Swift language version
+- `COPYRIGHT`: Copyright notice
+- `ORGANIZATION_NAME`: Your organization name
+- `FASTLANE_APP_IDENTIFIER`: App identifier for Fastlane
+- `FASTLANE_SCHEME`: Xcode scheme name
 
-### Fastlane Setup
+### 5. Install Dependencies
 
-1. **Install Fastlane**:
-   ```bash
-   bundle install
-   ```
+```bash
+# Install Ruby dependencies
+bundle install
 
-2. **Initialize Match** (if not done during quick start):
-   ```bash
-   bundle exec fastlane match init
-   ```
+# Install Fastlane (if not using bundle)
+gem install fastlane
 
-3. **Generate Certificates**:
-   ```bash
-   bundle exec fastlane match development
-   bundle exec fastlane match appstore
-   ```
+# Initialize Fastlane (optional, already configured)
+fastlane init
+```
 
-## 📁 Project Structure
+## Usage
+
+### Development
+
+```bash
+# Sync certificates and profiles
+fastlane ios certificates
+fastlane mac certificates
+
+# Build iOS app
+fastlane ios build
+
+# Build macOS app
+fastlane mac build
+
+# Run tests
+fastlane ios test
+fastlane mac test
+```
+
+### Deployment
+
+```bash
+# Deploy to TestFlight
+fastlane ios beta
+fastlane mac beta
+
+# Deploy to App Store
+fastlane ios release
+fastlane mac release
+```
+
+### GitHub Actions
+
+The template includes two workflows:
+
+- **CI Pipeline** (`ci.yml`): Runs on every push/PR, builds all platforms and runs tests
+- **Release Pipeline** (`release.yml`): Runs on version tags, builds and deploys to App Store
+
+To trigger a release:
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+## Project Structure
 
 ```
+├── MyApp.xcodeproj/          # Xcode project
+├── MyApp/
+│   ├── Shared/               # Shared code (iOS/macOS)
+│   │   ├── App.swift         # Main app entry point
+│   │   ├── ContentView.swift # Main view
+│   │   └── Assets.xcassets/  # Images and assets
+│   ├── iOS/                  # iOS-specific code
+│   └── macOS/                # macOS-specific code
+│       └── MyApp.entitlements # macOS app entitlements
+├── fastlane/
+│   ├── Fastfile              # Fastlane automation
+│   ├── Appfile               # App configuration
+│   └── Matchfile             # Fastlane Match configuration
 ├── .github/
-│   ├── workflows/          # GitHub Actions workflows
-│   └── ISSUE_TEMPLATE/     # Issue templates
-├── fastlane/              # Fastlane configuration
-├── .env.template          # Environment variables template
-├── .gitignore            # Git ignore rules
-├── Gemfile               # Ruby dependencies
-├── README.md             # This file
-├── LICENSE.md            # MIT License
-└── [Your Xcode Project]  # Create your Xcode project here
+│   ├── workflows/
+│   │   ├── ci.yml            # CI pipeline
+│   │   └── release.yml       # Release pipeline
+│   └── dependabot.yml        # Dependency updates
+├── .env.template             # Template for environment variables
+├── .env                      # Your environment variables (create from template)
+├── setup.sh                  # Project setup automation
+├── github-setup.sh           # GitHub secrets/variables automation
+├── verify.sh                 # Template verification script
+├── Gemfile                   # Ruby dependencies
+├── .swiftlint.yml           # SwiftLint configuration
+├── .gitignore               # Git ignore rules
+└── LICENSE                   # MIT License
 ```
 
-## 🔄 Branch Strategy
+## Customization
 
-This template follows the **GitHub Flow** branching strategy:
+### Adding Dependencies
 
-- **`main`**: Production-ready code, protected branch
-- **Feature branches**: `feature/description` or `feat/description`
-- **Bug fixes**: `fix/description` or `bugfix/description`
-- **Releases**: Tagged from `main` branch
+For Swift Package Manager dependencies:
+1. Open Xcode
+2. Go to File → Add Package Dependencies
+3. Add your package URL
 
-### Workflow:
-1. Create feature branch from `main`
-2. Develop and test changes
-3. Create Pull Request to `main`
-4. Code review and approval
-5. Merge to `main`
-6. Tag releases as needed
+For CocoaPods dependencies:
+1. Create a `Podfile` in the root directory
+2. Add your pods
+3. Run `bundle exec pod install`
 
-## 🤖 GitHub Actions
+### Platform-Specific Code
 
-The template includes automated workflows for:
+- **Shared code**: Place in `MyApp/Shared/`
+- **iOS-only code**: Place in `MyApp/iOS/`
+- **macOS-only code**: Place in `MyApp/macOS/`
 
-- **Build & Test**: Runs on every PR and push to main
-- **Release**: Automated App Store deployment
-- **Dependencies**: Dependabot for automated updates
+Use `#if os(iOS)` or `#if os(macOS)` for conditional compilation within shared files.
 
-## 🔐 Code Signing
+### Mac Catalyst Customization
 
-Code signing is handled through **Fastlane Match**:
+The project is configured to support Mac Catalyst. To customize the Mac Catalyst experience:
 
-- Certificates stored in private Git repository
-- Automatic provisioning profile management
-- Supports development and distribution profiles
-- Encrypted storage with team sharing
+1. Use `#if targetEnvironment(macCatalyst)` for Mac Catalyst-specific code
+2. Configure Mac Catalyst settings in Xcode under target settings
 
-## ⚙ Configuration Checklist
-
-After creating your project from this template:
-
-- [ ] Update `README.md` with your project details
-- [ ] Configure `.env` file with your credentials
-- [ ] Create Xcode project in repository root
-- [ ] Setup Fastlane Match repository
-- [ ] Configure GitHub repository secrets
-- [ ] Update `Gemfile` if needed
-- [ ] Customize GitHub Actions workflows
-- [ ] Add your app's specific dependencies
-- [ ] Update bundle identifier and app name
-- [ ] Configure App Store Connect
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Guidelines
-
-- Follow Swift style guidelines
-- Write unit tests for new features
-- Update documentation for any API changes
-- Ensure CI passes before requesting review
-
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
-**Xcode Build Issues**:
-- Verify iOS/macOS deployment targets match prerequisites
-- Check bundle identifier configuration
-- Ensure certificates are valid and not expired
-
-**Fastlane Match Issues**:
-- Verify Match repository access and credentials
-- Check `MATCH_PASSWORD` is correct
-- Ensure development team ID matches certificates
-
-**GitHub Actions Failures**:
-- Verify all required secrets are configured
-- Check Xcode version in workflow matches local version
-- Ensure repository has correct permissions
-
-**Environment Setup**:
-- Verify `.env` file is properly configured
-- Check Apple ID has required permissions
-- Ensure API keys are valid and not expired
+1. **Build fails with signing errors**: Make sure `DEVELOPMENT_TEAM` is set correctly
+2. **Fastlane authentication fails**: Verify App Store Connect API credentials
+3. **GitHub Actions fail**: Check that all required secrets are set
 
 ### Getting Help
 
-- **Issues**: Create an issue in this repository
-- **Discussions**: Use GitHub Discussions for questions
-- **Documentation**: Check Apple Developer documentation
-- **Community**: iOS/macOS development communities
+- Check the [GitHub Issues](https://github.com/yourusername/yourapp/issues) for common problems
+- Review Apple's documentation for iOS/macOS development
+- Consult Fastlane documentation for deployment issues
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This template is available under the MIT License. Replace this section with your app's license.
 
-## 🏷 Topics
+## Contributing
 
-`ios` `macos` `template` `fastlane` `github-actions` `xcode` `swift` `mobile` `automation` `ci-cd`
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
 ---
 
-**Happy Coding! 🎉**
-
-Made with ❤️ for the iOS/macOS development community.
+**Note**: This template is designed to be simple and straightforward. For more complex needs, consider adding additional tools like SwiftLint, SwiftFormat, or custom build scripts.

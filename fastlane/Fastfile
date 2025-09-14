@@ -1,579 +1,172 @@
-# iOS/macOS Template Fastfile
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out:
-# https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out:
-# https://docs.fastlane.tools/plugins/available-plugins
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
-
-# =============================================================================
-# CONSTANTS AND CONFIGURATION
-# =============================================================================
-
-# Default platform - can be overridden
 default_platform(:ios)
 
-# Build configurations
-DEBUG_CONFIG = "Debug"
-RELEASE_CONFIG = "Release"
+# Load environment variables
+require 'dotenv'
+Dotenv.load
 
-# Simulator devices for testing
-IOS_SIMULATOR = "iPhone 15 Pro"
-MACOS_DESTINATION = "platform=macOS"
-
-# =============================================================================
-# ENVIRONMENT VARIABLE VALIDATION
-# =============================================================================
-
-def validate_required_env_vars
-  required_vars = {
-    "SCHEME_NAME" => "Your Xcode scheme name (e.g., 'MyApp')",
-    "WORKSPACE_NAME" => "Your Xcode workspace name (e.g., 'MyApp.xcworkspace')",
-    "PROJECT_NAME" => "Your Xcode project name (e.g., 'MyApp.xcodeproj')",
-    "IOS_BUNDLE_ID" => "Your iOS bundle identifier (e.g., 'com.company.myapp')",
-    "APPLE_ID" => "Your Apple ID email address",
-    "DEVELOPMENT_TEAM" => "Your Apple Developer Team ID",
-    "APPSTORE_TEAM_ID" => "Your App Store Connect Team ID"
-  }
-
-  missing_vars = []
-
-  required_vars.each do |var_name, description|
-    if ENV[var_name].nil? || ENV[var_name].strip.empty?
-      missing_vars << "❌ #{var_name}: #{description}"
-    end
-  end
-
-  unless missing_vars.empty?
-    UI.user_error!(
-      "🚨 MISSING REQUIRED ENVIRONMENT VARIABLES 🚨\n\n" +
-      "The following environment variables must be set in your .env file:\n\n" +
-      missing_vars.join("\n") + "\n\n" +
-      "📝 Instructions:\n" +
-      "1. Copy .env.template to .env: cp .env.template .env\n" +
-      "2. Edit .env and fill in your actual values\n" +
-      "3. Run: gh secret set -f .env (to push to GitHub secrets)\n" +
-      "4. Re-run your Fastlane command\n\n" +
-      "📖 For more help, see the README.md file."
-    )
-  end
-
-  UI.success("✅ All required environment variables are set!")
+before_all do
+  setup_circle_ci if ENV['CI']
 end
-
-def validate_code_signing_env_vars
-  code_signing_vars = {
-    "MATCH_GIT_URL" => "Git URL for storing certificates (e.g., 'https://github.com/org/certs.git')",
-    "MATCH_PASSWORD" => "Password for encrypting certificates",
-    "MATCH_GIT_BASIC_AUTHORIZATION" => "Git basic auth token for accessing certificates repo"
-  }
-
-  missing_vars = []
-
-  code_signing_vars.each do |var_name, description|
-    if ENV[var_name].nil? || ENV[var_name].strip.empty?
-      missing_vars << "❌ #{var_name}: #{description}"
-    end
-  end
-
-  unless missing_vars.empty?
-    UI.user_error!(
-      "🔐 MISSING CODE SIGNING ENVIRONMENT VARIABLES 🔐\n\n" +
-      "The following code signing variables must be set:\n\n" +
-      missing_vars.join("\n") + "\n\n" +
-      "📝 Code Signing Setup:\n" +
-      "1. Create a private Git repository for storing certificates\n" +
-      "2. Set MATCH_GIT_URL to your certificates repository URL\n" +
-      "3. Set a strong MATCH_PASSWORD for encrypting certificates\n" +
-      "4. Set MATCH_GIT_BASIC_AUTHORIZATION for repository access\n" +
-      "5. Run: fastlane match init\n" +
-      "6. Run: fastlane match development && fastlane match appstore\n\n" +
-      "📖 For more help, see the Matchfile and README.md"
-    )
-  end
-end
-
-# =============================================================================
-# HELPER METHODS
-# =============================================================================
-
-def get_scheme_name
-  validate_required_env_vars
-  return ENV["SCHEME_NAME"]
-end
-
-def get_workspace_name
-  validate_required_env_vars
-  return ENV["WORKSPACE_NAME"]
-end
-
-def get_project_name
-  validate_required_env_vars
-  return ENV["PROJECT_NAME"]
-end
-
-def get_bundle_id(platform = "ios")
-  validate_required_env_vars
-  case platform
-  when "macos"
-    macos_bundle_id = ENV["MACOS_BUNDLE_ID"]
-    if macos_bundle_id.nil? || macos_bundle_id.strip.empty?
-      UI.user_error!("❌ MACOS_BUNDLE_ID environment variable is required for macOS builds")
-    end
-    return macos_bundle_id
-  else
-    return ENV["IOS_BUNDLE_ID"]
-  end
-end
-
-def cleanup_build_artifacts
-  # Clean up build artifacts
-  sh("rm -rf ../build") rescue nil
-  sh("rm -rf ../DerivedData") rescue nil
-end
-
-# =============================================================================
-# BEFORE/AFTER HOOKS
-# =============================================================================
-
-before_all do |lane, options|
-  # Ensure we're in a clean state
-  ensure_git_status_clean unless options[:skip_git_check]
-
-  # Setup environment
-  setup_ci if ENV["CI"]
-end
-
-after_all do |lane, options|
-  # Clean up after successful run
-  cleanup_build_artifacts unless options[:skip_cleanup]
-end
-
-error do |lane, exception, options|
-  # Handle errors
-  cleanup_build_artifacts unless options[:skip_cleanup]
-  UI.error("Lane #{lane} failed with exception: #{exception}")
-end
-
-# =============================================================================
-# iOS PLATFORM
-# =============================================================================
 
 platform :ios do
+  desc "Sync certificates and profiles using match"
+  lane :certificates do
+    match(
+      type: "development",
+      app_identifier: ENV['FASTLANE_APP_IDENTIFIER'],
+      readonly: is_ci
+    )
 
-  # ---------------------------------------------------------------------------
-  # TESTING LANES
-  # ---------------------------------------------------------------------------
-
-  desc "Run unit and UI tests for iOS"
-  lane :test do |options|
-    scheme = options[:scheme] || get_scheme_name
-    device = options[:device] || IOS_SIMULATOR
-
-    begin
-      run_tests(
-        workspace: get_workspace_name,
-        scheme: scheme,
-        device: device,
-        clean: true,
-        code_coverage: true,
-        output_directory: "./test_output",
-        output_types: "html,junit",
-        fail_build: true
-      )
-    rescue => ex
-      UI.error("Tests failed: #{ex}")
-      raise ex
-    end
+    match(
+      type: "appstore",
+      app_identifier: ENV['FASTLANE_APP_IDENTIFIER'],
+      readonly: is_ci
+    )
   end
-
-  desc "Run tests on multiple iOS simulators"
-  lane :test_multiple do
-    devices = ["iPhone 15 Pro", "iPhone 15 Plus", "iPad Pro (12.9-inch) (6th generation)"]
-
-    devices.each do |device|
-      UI.header("Testing on #{device}")
-      test(device: device)
-    end
-  end
-
-  # ---------------------------------------------------------------------------
-  # BUILD LANES
-  # ---------------------------------------------------------------------------
 
   desc "Build iOS app for development"
-  lane :build_debug do |options|
-    scheme = options[:scheme] || get_scheme_name
+  lane :build do
+    certificates
 
     build_app(
-      workspace: get_workspace_name,
-      scheme: scheme,
-      configuration: DEBUG_CONFIG,
-      clean: true,
-      export_method: "development",
-      export_options: {
-        signingStyle: "automatic",
-        thinning: "<none>"
-      },
-      output_directory: "./build",
-      output_name: "#{scheme}_Debug.ipa"
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (iOS)",
+      configuration: "Debug",
+      skip_codesigning: false,
+      skip_archive: true,
+      export_method: "development"
     )
   end
 
-  desc "Build iOS app for release"
-  lane :build_release do |options|
-    scheme = options[:scheme] || get_scheme_name
-
-    # Validate code signing environment variables
-    validate_code_signing_env_vars
-
-    # Sync certificates and provisioning profiles
-    match(type: "appstore", readonly: true)
-
-    build_app(
-      workspace: get_workspace_name,
-      scheme: scheme,
-      configuration: RELEASE_CONFIG,
-      clean: true,
-      export_method: "app-store",
-      export_options: {
-        signingStyle: "manual",
-        provisioningProfiles: {
-          get_bundle_id => ENV["sigh_#{get_bundle_id}_appstore_profile-name"]
-        }
-      },
-      output_directory: "./build",
-      output_name: "#{scheme}_Release.ipa"
+  desc "Run tests for iOS"
+  lane :test do
+    run_tests(
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (iOS)",
+      device: "iPhone 15"
     )
   end
 
-  # ---------------------------------------------------------------------------
-  # DEPLOYMENT LANES
-  # ---------------------------------------------------------------------------
+  desc "Build and release iOS app to TestFlight"
+  lane :beta do
+    certificates
 
-  desc "Upload to TestFlight for beta testing"
-  lane :beta do |options|
-    # Build the app
-    build_release
+    increment_build_number(xcodeproj: "#{ENV['PROJECT_NAME']}.xcodeproj")
 
-    # Upload to TestFlight
+    build_app(
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (iOS)",
+      configuration: "Release",
+      export_method: "app-store"
+    )
+
     upload_to_testflight(
-      skip_waiting_for_build_processing: false,
-      skip_submission: true,
-      distribute_external: false,
-      groups: options[:groups] || ["Internal Testers"],
-      changelog: options[:changelog] || "Bug fixes and improvements"
+      api_key_path: "~/.appstoreconnect/private_keys/AuthKey_#{ENV['APP_STORE_CONNECT_KEY_ID']}.p8",
+      skip_waiting_for_build_processing: true
     )
-
-    # Send notification
-    if ENV["SLACK_WEBHOOK_URL"]
-      slack(
-        message: "iOS Beta build uploaded to TestFlight! 🚀",
-        channel: "#releases"
-      )
-    end
   end
 
-  desc "Deploy to App Store"
-  lane :release do |options|
-    # Build the app
-    build_release
+  desc "Build and release iOS app to App Store"
+  lane :release do
+    certificates
 
-    # Upload to App Store
+    increment_build_number(xcodeproj: "#{ENV['PROJECT_NAME']}.xcodeproj")
+
+    build_app(
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (iOS)",
+      configuration: "Release",
+      export_method: "app-store"
+    )
+
     upload_to_app_store(
-      force: true,
-      reject_if_possible: true,
-      skip_metadata: false,
-      skip_screenshots: false,
-      submit_for_review: false,
-      automatic_release: false
-    )
-
-    # Send notification
-    if ENV["SLACK_WEBHOOK_URL"]
-      slack(
-        message: "iOS app submitted to App Store! 📱✨",
-        channel: "#releases"
-      )
-    end
-  end
-
-  # ---------------------------------------------------------------------------
-  # METADATA & SCREENSHOTS
-  # ---------------------------------------------------------------------------
-
-  desc "Generate screenshots for App Store"
-  lane :screenshots do
-    capture_screenshots(
-      workspace: get_workspace_name,
-      scheme: get_scheme_name,
-      devices: [
-        "iPhone 15 Pro Max",
-        "iPhone 15 Pro",
-        "iPhone SE (3rd generation)",
-        "iPad Pro (12.9-inch) (6th generation)"
-      ],
-      languages: ["en-US"],
-      output_directory: "./screenshots",
-      clear_previous_screenshots: true,
-      override_status_bar: true,
-      add_photos: ["screenshot1.png", "screenshot2.png"],
-      localize_simulator: true
+      api_key_path: "~/.appstoreconnect/private_keys/AuthKey_#{ENV['APP_STORE_CONNECT_KEY_ID']}.p8",
+      submit_for_review: true,
+      automatic_release: false,
+      force: true
     )
   end
-
-  desc "Upload metadata to App Store Connect"
-  lane :metadata do
-    upload_to_app_store(
-      skip_binary_upload: true,
-      skip_screenshots: false,
-      overwrite_screenshots: true
-    )
-  end
-
-  # ---------------------------------------------------------------------------
-  # UTILITY LANES
-  # ---------------------------------------------------------------------------
-
-  desc "Increment build number"
-  lane :increment_build do
-    increment_build_number(
-      build_number: latest_testflight_build_number + 1,
-      xcodeproj: get_project_name
-    )
-
-    commit_version_bump(
-      message: "Increment build number",
-      xcodeproj: get_project_name
-    )
-  end
-
-  desc "Increment version number"
-  lane :increment_version do |options|
-    version_type = options[:type] || "patch" # major, minor, patch
-
-    increment_version_number(
-      bump_type: version_type,
-      xcodeproj: get_project_name
-    )
-
-    commit_version_bump(
-      message: "Increment #{version_type} version",
-      xcodeproj: get_project_name
-    )
-  end
-
 end
-
-# =============================================================================
-# MACOS PLATFORM
-# =============================================================================
 
 platform :mac do
+  desc "Sync certificates and profiles using match for macOS"
+  lane :certificates do
+    match(
+      type: "development",
+      app_identifier: ENV['FASTLANE_APP_IDENTIFIER'],
+      platform: "macos",
+      readonly: is_ci
+    )
 
-  # ---------------------------------------------------------------------------
-  # TESTING LANES
-  # ---------------------------------------------------------------------------
-
-  desc "Run unit and UI tests for macOS"
-  lane :test do |options|
-    scheme = options[:scheme] || get_scheme_name
-
-    begin
-      run_tests(
-        workspace: get_workspace_name,
-        scheme: scheme,
-        destination: MACOS_DESTINATION,
-        clean: true,
-        code_coverage: true,
-        output_directory: "./test_output",
-        output_types: "html,junit",
-        fail_build: true
-      )
-    rescue => ex
-      UI.error("macOS tests failed: #{ex}")
-      raise ex
-    end
+    match(
+      type: "appstore",
+      app_identifier: ENV['FASTLANE_APP_IDENTIFIER'],
+      platform: "macos",
+      readonly: is_ci
+    )
   end
-
-  # ---------------------------------------------------------------------------
-  # BUILD LANES
-  # ---------------------------------------------------------------------------
 
   desc "Build macOS app for development"
-  lane :build_debug do |options|
-    scheme = options[:scheme] || get_scheme_name
+  lane :build do
+    certificates
 
     build_app(
-      workspace: get_workspace_name,
-      scheme: scheme,
-      configuration: DEBUG_CONFIG,
-      clean: true,
-      destination: MACOS_DESTINATION,
-      export_method: "development",
-      output_directory: "./build",
-      output_name: "#{scheme}_macOS_Debug.app"
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (macOS)",
+      configuration: "Debug",
+      skip_codesigning: false,
+      skip_archive: true,
+      export_method: "development"
     )
   end
 
-  desc "Build macOS app for release"
-  lane :build_release do |options|
-    scheme = options[:scheme] || get_scheme_name
-
-    # Validate code signing environment variables
-    validate_code_signing_env_vars
-
-    # Sync certificates and provisioning profiles
-    match(type: "appstore", readonly: true, platform: "macos")
-
-    build_app(
-      workspace: get_workspace_name,
-      scheme: scheme,
-      configuration: RELEASE_CONFIG,
-      clean: true,
-      destination: MACOS_DESTINATION,
-      export_method: "app-store",
-      export_options: {
-        signingStyle: "manual",
-        provisioningProfiles: {
-          get_bundle_id("macos") => ENV["sigh_#{get_bundle_id('macos')}_appstore_profile-name"]
-        }
-      },
-      output_directory: "./build",
-      output_name: "#{scheme}_macOS_Release.app"
+  desc "Run tests for macOS"
+  lane :test do
+    run_tests(
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (macOS)"
     )
   end
 
-  # ---------------------------------------------------------------------------
-  # DEPLOYMENT LANES
-  # ---------------------------------------------------------------------------
+  desc "Build and release macOS app to TestFlight"
+  lane :beta do
+    certificates
 
-  desc "Upload macOS app to TestFlight"
-  lane :beta do |options|
-    # Build the app
-    build_release
+    increment_build_number(xcodeproj: "#{ENV['PROJECT_NAME']}.xcodeproj")
 
-    # Upload to TestFlight
+    build_app(
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (macOS)",
+      configuration: "Release",
+      export_method: "app-store"
+    )
+
     upload_to_testflight(
-      skip_waiting_for_build_processing: false,
-      skip_submission: true,
-      distribute_external: false,
-      groups: options[:groups] || ["Internal Testers"],
-      changelog: options[:changelog] || "Bug fixes and improvements",
-      platform: "osx"
+      api_key_path: "~/.appstoreconnect/private_keys/AuthKey_#{ENV['APP_STORE_CONNECT_KEY_ID']}.p8",
+      platform: "osx",
+      skip_waiting_for_build_processing: true
     )
-
-    # Send notification
-    if ENV["SLACK_WEBHOOK_URL"]
-      slack(
-        message: "macOS Beta build uploaded to TestFlight! 🖥️✨",
-        channel: "#releases"
-      )
-    end
   end
 
-  desc "Deploy macOS app to App Store"
-  lane :release do |options|
-    # Build the app
-    build_release
+  desc "Build and release macOS app to Mac App Store"
+  lane :release do
+    certificates
 
-    # Upload to App Store
+    increment_build_number(xcodeproj: "#{ENV['PROJECT_NAME']}.xcodeproj")
+
+    build_app(
+      project: "#{ENV['PROJECT_NAME']}.xcodeproj",
+      scheme: "#{ENV['PROJECT_NAME']} (macOS)",
+      configuration: "Release",
+      export_method: "app-store"
+    )
+
     upload_to_app_store(
-      force: true,
-      reject_if_possible: true,
-      skip_metadata: false,
-      skip_screenshots: false,
-      submit_for_review: false,
+      api_key_path: "~/.appstoreconnect/private_keys/AuthKey_#{ENV['APP_STORE_CONNECT_KEY_ID']}.p8",
+      submit_for_review: true,
       automatic_release: false,
+      force: true,
       platform: "osx"
     )
-
-    # Send notification
-    if ENV["SLACK_WEBHOOK_URL"]
-      slack(
-        message: "macOS app submitted to App Store! 🖥️📦",
-        channel: "#releases"
-      )
-    end
   end
-
-end
-
-# =============================================================================
-# CROSS-PLATFORM LANES
-# =============================================================================
-
-desc "Run tests on both iOS and macOS"
-lane :test_all do
-  ios_test
-  mac_test
-end
-
-desc "Build both iOS and macOS apps"
-lane :build_all do |options|
-  config = options[:config] || "debug"
-
-  case config
-  when "debug"
-    ios_build_debug
-    mac_build_debug
-  when "release"
-    ios_build_release
-    mac_build_release
-  end
-end
-
-desc "Deploy both iOS and macOS apps to TestFlight"
-lane :beta_all do |options|
-  ios_beta(options)
-  mac_beta(options)
-end
-
-desc "Setup code signing for both platforms"
-lane :setup_signing do
-  # Validate all required environment variables first
-  validate_required_env_vars
-  validate_code_signing_env_vars
-
-  UI.message("🔐 Setting up code signing certificates and provisioning profiles...")
-
-  begin
-    # iOS certificates and profiles
-    UI.message("📱 Setting up iOS development certificates...")
-    match(type: "development", platform: "ios")
-
-    UI.message("📱 Setting up iOS App Store certificates...")
-    match(type: "appstore", platform: "ios")
-
-    # macOS certificates and profiles
-    UI.message("🖥️ Setting up macOS development certificates...")
-    match(type: "development", platform: "macos")
-
-    UI.message("🖥️ Setting up macOS App Store certificates...")
-    match(type: "appstore", platform: "macos")
-
-    UI.success("✅ Code signing setup complete for both iOS and macOS!")
-  rescue => ex
-    UI.user_error!(
-      "❌ Code signing setup failed: #{ex.message}\n\n" +
-      "💡 Common solutions:\n" +
-      "1. Verify your MATCH_GIT_URL is correct and accessible\n" +
-      "2. Check that MATCH_PASSWORD is the correct encryption password\n" +
-      "3. Ensure MATCH_GIT_BASIC_AUTHORIZATION has repository access\n" +
-      "4. Run 'fastlane match init' if this is your first setup\n" +
-      "5. Verify your Apple Developer account has certificate creation permissions"
-    )
-  end
-end
-
-desc "Clean all build artifacts and derived data"
-lane :clean_all do
-  cleanup_build_artifacts
-  clear_derived_data
-  reset_git_repo(skip_clean: true, force: true)
 end
